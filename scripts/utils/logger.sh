@@ -67,6 +67,7 @@ LOG_LEVELS=(
     "${LOG_LEVEL_TRACE}"  "TRACE"  "${B_LOG_DEFAULT_TEMPLATE}" "\e[94m" "\e[0m"
 )
 # log levels columns
+# shellcheck disable=2034
 readonly LOG_LEVELS_LEVEL=0
 readonly LOG_LEVELS_NAME=1
 readonly LOG_LEVELS_TEMPLATE=2
