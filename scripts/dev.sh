@@ -19,6 +19,6 @@ assert_tool rsync
 # Watcher
 INFO "Starting watcher";
 while inotifywait -r -e modify,create,delete,move "$WATCH_DIR"; do
-    rsync -avz "$WATCH_DIR" "${DESTINATION_DIR}"
+    rsync -avz "$WATCH_DIR" "$DESTINATION_DIR"
 done
 INFO "Stopping watcher";
