@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "timonwong.shellcheck",
+        "mads-hartmann.bash-ide-vscode",
+        "shakram02.bash-beautify",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "gruntfuggly.todo-tree",
+        "usernamehw.errorlens"
+    ]
+}
