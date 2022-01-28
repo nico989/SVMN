@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
+# Current directory
+__DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+readonly __DIRNAME
+
 # Utils path
-UTILS_PATH="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )/utils"
+UTILS_PATH="${__DIRNAME}/utils"
 readonly UTILS_PATH
 
 # Include logger
