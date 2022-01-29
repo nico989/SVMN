@@ -38,12 +38,14 @@ $ scripts/init.sh
 `Windows` users must install [`WSL` (Windows Subsystem for Linux)](https://docs.microsoft.com/windows/wsl/install).<br/>
 To correctly configure the project in `WSL` you must follow these steps:
 
+> Configuration must be done in `WSL` and not in `Windows`.
+
 1. Install [`Vagrant`](https://www.vagrantup.com/downloads) in `WSL`.<br/>
    Note that you must also have installed `Vagrant` in `Windows`.
 
 2. Configure `Vagrant` to run in `WSL` following the official guide [_Vagrant and Windows Subsystem for Linux_](https://www.vagrantup.com/docs/other/wsl).
 
-3. Install [`virtualbox_WSL2`](https://github.com/Karandash8/virtualbox_WSL2) `Vagrant` plugin:
+3. Install [`virtualbox_WSL2`](https://github.com/Karandash8/virtualbox_WSL2) `Vagrant` plugin in `WSL`:
 
    ```bash
    $ vagrant plugin install virtualbox_WSL2
