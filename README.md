@@ -70,6 +70,14 @@ To correctly configure the project in `WSL` you must follow these steps:
    $ scripts/init.sh
    ```
 
+## Development
+
+> Automatically keeps updated the working directory with `comnetsemu`
+
+```bash
+$ scripts/dev.sh
+```
+
 ## License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
