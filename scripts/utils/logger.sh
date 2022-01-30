@@ -311,7 +311,7 @@ function B_LOG_print_message() {
         fi
     fi
     # log level bigger as LOG_LEVEL? and level is not -1? return
-    
+
     shift
     local message=${*:-}
     if [ -z "$message" ]; then # if message is empty, get from stdin
