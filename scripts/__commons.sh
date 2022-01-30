@@ -48,5 +48,6 @@ function download_dep() {
 
 # Assert tool(s)
 assert_tool_silent wget
-assert_tool shellcheck
-assert_tool gem
+assert_tool_silent shellcheck
+assert_tool_silent black
+assert_tool_silent gem

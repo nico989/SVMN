@@ -51,7 +51,7 @@ INFO "Syncing directory '$WATCH_DIR'"
 sync
 # Watcher
 INFO "Starting watcher on '$WATCH_DIR' with destination '$DEST_DIR'";
-while inotifywait -r -e modify,create,delete,move "$WATCH_DIR"; do
+while inotifywait --recursive --quiet --event modify,create,delete,move "$WATCH_DIR"; do
     sync
 done
 INFO "Watcher stopped";
