@@ -22,6 +22,12 @@ jobs:
         run: chmod -R +x scripts
         shell: bash
 
+      - name: Install VirtualBox
+        run: |
+          sudo apt-get install virtualbox
+          virtualbox --version
+        shell: bash
+
       - name: Install Vagrant
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
