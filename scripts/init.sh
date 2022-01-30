@@ -11,9 +11,7 @@ source "${__DIRNAME}/__commons.sh"
 # Assert tool(s)
 assert_tool vagrant
 
-# Change current working directory
-cd "${__DIRNAME}/../comnetsemu"
 # Creates and configures comnetsemu
 INFO "Initializing 'comnetsemu'"
-vagrant up
+(cd "${__DIRNAME}/../comnetsemu" && vagrant up) || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
 INFO "Successfully initialized 'comnetsemu'"

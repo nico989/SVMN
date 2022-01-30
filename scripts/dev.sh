@@ -7,6 +7,9 @@ readonly __DIRNAME
 readonly WATCH_DIR="${__DIRNAME}/../src/"
 # Destination directory
 readonly DEST_DIR="${__DIRNAME}/../comnetsemu/app/morphing_slices/"
+# Vagrant status
+VAGRANT_STATUS=$(cd "${__DIRNAME}"/../comnetsemu && vagrant status --machine-readable | grep ",state," | grep -E -o '([a-z_]*)$')
+readonly VAGRANT_STATUS
 
 # Include commons
 # shellcheck source=__commons.sh
@@ -15,6 +18,23 @@ source "${__DIRNAME}/__commons.sh"
 # Assert tool(s)
 assert_tool inotifywait
 assert_tool rsync
+
+# Check Vagrant status
+case "${VAGRANT_STATUS}" in
+    running)
+        INFO "'comnetsemu' is running"
+    ;;
+    poweroff)
+        # Restarting comnetsemu
+        INFO "'comnetsemu' is poweroff, restart..."
+        INFO "Restarting 'comnetsemu'"
+        (cd "${__DIRNAME}/../comnetsemu" && vagrant up) || { FATAL "Error restarting 'comnetsemu'"; exit 1; }
+        INFO "Successfully running 'comnetsemu'"
+    ;;
+    *)
+        WARN "Vagrant status '${VAGRANT_STATUS}' not checked"
+    ;;
+esac
 
 # Sync watch and destination directories
 sync() {
