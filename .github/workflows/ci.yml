@@ -34,6 +34,7 @@ jobs:
 
       - name: Initialize
         run: scripts/init.sh
+        shell: bash
 
       - name: pre-commit
         run: python scripts/deps/pre-commit.pyz run --all-files
