@@ -8,11 +8,6 @@ readonly __DIRNAME
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
-# Assert tool(s)
-INFO "=== Checking tools ==="
-assert_tool vagrant
-assert_tool python
-
 # Download dependencies
 INFO "=== Dependencies ==="
 download_dep pre-commit.pyz https://github.com/pre-commit/pre-commit/releases/download/v2.17.0/pre-commit-2.17.0.pyz

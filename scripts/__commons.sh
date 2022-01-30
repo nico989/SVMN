@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # Current directory
-__DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
-readonly __DIRNAME
+__THIS_DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+readonly __THIS_DIRNAME
 # Utils directory
-UTILS_DIR="$(readlink -m "${__DIRNAME}"/utils)"
+UTILS_DIR="$(readlink -m "${__THIS_DIRNAME}"/utils)"
 readonly UTILS_DIR
 # Deps directory
-DEPS_DIR="$(readlink -m "${__DIRNAME}"/deps)"
+DEPS_DIR="$(readlink -m "${__THIS_DIRNAME}"/deps)"
 readonly DEPS_DIR
 
 # Fail on error
@@ -48,6 +48,8 @@ function download_dep() {
 
 # Assert tool(s)
 assert_tool_silent wget
+assert_tool_silent vagrant
+assert_tool_silent python
 assert_tool_silent shellcheck
 assert_tool_silent black
 assert_tool_silent gem
