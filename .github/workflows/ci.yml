@@ -30,6 +30,24 @@ jobs:
           vagrant --version
         shell: bash
 
+      - name: Install Black
+        run: |
+          pip install black
+          black --version
+        shell: bash
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt install shellcheck
+          shellcheck --version
+        shell: bash
+
+      - name: Install RubyGems
+        run: |
+          sudo apt-get install ruby-dev
+          gem --version
+        shell: bash
+
       - name: Initialize
         run: scripts/init.sh
         shell: bash
