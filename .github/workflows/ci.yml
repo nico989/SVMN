@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci:
-    runs-on: macos-10.15
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -21,16 +21,12 @@ jobs:
       - name: Scripts permissions
         run: chmod -R +x scripts
 
-      - name: Cache Vagrant boxes
-        uses: actions/cache@v2
-        with:
-          path: ~/.vagrant.d/boxes
-          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
-          restore-keys: |
-            ${{ runner.os }}-vagrant-
-
-      - name: Vagrant version
-        run: vagrant --version
+      - name: Install Vagrant
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install vagrant
+          vagrant --version
 
       - name: Initialize
         run: scripts/init.sh
