@@ -1,13 +1,13 @@
 [[source]]
-url = "https://pypi.org/simple"
+url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
 [packages]
 
 [dev-packages]
-black = "*"
-pre-commit = "*"
+black = "~=22.1.0"
+pre-commit = "~=2.17.0"
 
 [requires]
 python_version = "3.8"
