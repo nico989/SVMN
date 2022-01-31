@@ -19,6 +19,11 @@ assert_tool inotifywait
 assert_tool rsync
 assert_tool gem
 
+# Create .venv directory
+INFO "=== Structure ==="
+INFO "Creating '.venv' directory"
+mkdir "${__DIRNAME}/../.venv"
+
 # Install Python packages
 INFO "=== Python packages ==="
 INFO "Installing Python packages"

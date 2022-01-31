@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+mininet = "~=2.3.0.dev6"
 
 [dev-packages]
 black = "~=22.1.0"
