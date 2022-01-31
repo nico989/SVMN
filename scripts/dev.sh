@@ -17,11 +17,6 @@ readonly VAGRANT_STATUS
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
-# Assert tool(s)
-INFO "=== Checking tools ==="
-assert_tool inotifywait
-assert_tool rsync
-
 # Check Vagrant status
 INFO "=== Checking Vagrant ==="
 case "${VAGRANT_STATUS}" in
@@ -33,7 +28,6 @@ case "${VAGRANT_STATUS}" in
         INFO "'comnetsemu' is poweroff, restart..."
         INFO "Restarting 'comnetsemu'"
         (cd "${__DIRNAME}/../comnetsemu" && vagrant up) || { FATAL "Error restarting 'comnetsemu'"; exit 1; }
-        INFO "Successfully running 'comnetsemu'"
     ;;
     *)
         WARN "Vagrant status '${VAGRANT_STATUS}' not checked"

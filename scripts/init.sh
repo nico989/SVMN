@@ -8,16 +8,26 @@ readonly __DIRNAME
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
-# Download dependencies
-INFO "=== Dependencies ==="
-download_dep pre-commit.pyz https://github.com/pre-commit/pre-commit/releases/download/v2.17.0/pre-commit-2.17.0.pyz
+# Assert tool(s)
+INFO "=== Checking tools ==="
+assert_tool vagrant
+assert_tool python3
+assert_tool pip3
+assert_tool pipenv
+assert_tool shellcheck
+assert_tool inotifywait
+assert_tool rsync
+assert_tool gem
 
+# Install Python packages
+INFO "=== Python packages ==="
+INFO "Installing Python packages"
+(pipenv install --dev) || { FATAL "Error installing Python packages"; exit 1; }
 # Install pre-commit
 INFO "Installing 'pre-commit'"
-python "$DEPS_DIR/pre-commit.pyz" install
+(pipenv run pre-commit install) || { FATAL "Error installing 'pre-commit'"; exit 1; }
 
 # Create and configure comnetsemu
 INFO "=== comnetsemu ==="
 INFO "Initializing 'comnetsemu'"
 (cd "${__DIRNAME}/../comnetsemu" && vagrant up) || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
-INFO "Successfully initialized 'comnetsemu'"

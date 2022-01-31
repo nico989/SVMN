@@ -28,7 +28,9 @@ chmod -R +x scripts
 
 ### Initialize
 
-#### Linux | MacOS
+#### Linux
+
+Run the initialization script:
 
 ```bash
 scripts/init.sh
