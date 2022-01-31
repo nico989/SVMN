@@ -3,5 +3,8 @@
     "files.encoding": "utf8",
     "editor.formatOnSave": true,
     "python.formatting.provider": "black",
-    "python.pythonPath": ".venv"
+    "python.pythonPath": ".venv",
+    "python.analysis.extraPaths": [
+        "comnetsemu"
+    ]
 }
