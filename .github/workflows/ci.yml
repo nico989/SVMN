@@ -18,16 +18,20 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-
       - name: Install packages
         run: |
           sudo apt-get update
           sudo apt-get install ruby-dev shellcheck
         shell: bash
+
+      - name: Install pipenv
+        run: pipx install pipenv
+
+      - name: Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+          cache: "pipenv"
 
       - name: Install Python packages
         run: pipenv install --dev
