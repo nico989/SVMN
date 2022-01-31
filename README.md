@@ -1,5 +1,8 @@
 # Softwarized and Virtualized Mobile Networks
 
+[![CI](https://github.com/nico989/SVMN/workflows/ci/badge.svg)](https://github.com/nico989/SVMN/actions)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 ## Members
 
 |  Name  |  Surname  |     Username     |    MAT     |
