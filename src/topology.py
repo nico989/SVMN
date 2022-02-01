@@ -21,29 +21,29 @@ def main():
 
     # Client
     log.info("Client 0\n")
-    client0 = net.addDockerHost(
-        "client0",
+    c0 = net.addDockerHost(
+        "c0",
         dimage="dev_test",
         ip="192.168.0.9/24",
-        docker_args={"hostname": "client0", "pid_mode": "host"},
+        docker_args={"hostname": "c0", "pid_mode": "host"},
     )
 
     # Main server
     log.info("Server 0\n")
-    server0 = net.addDockerHost(
-        "server0",
+    s0 = net.addDockerHost(
+        "s0",
         dimage="dev_test",
         ip="192.168.0.10/24",
-        docker_args={"hostname": "server0", "pid_mode": "host"},
+        docker_args={"hostname": "s0", "pid_mode": "host"},
     )
 
     # Backup server
     log.info("Server 1\n")
-    server1 = net.addDockerHost(
-        "server1",
+    s1 = net.addDockerHost(
+        "s1",
         dimage="dev_test",
         ip="192.168.0.10/24",
-        docker_args={"hostname": "server1", "pid_mode": "host"},
+        docker_args={"hostname": "s1", "pid_mode": "host"},
     )
 
     # === Networking
@@ -51,14 +51,50 @@ def main():
 
     # Switch
     log.info("Switch 0\n")
-    switch0 = net.addSwitch("switch0")
+    sw0 = net.addSwitch("sw0")
     # Service traffic
-    net.addLinkNamedIfce(switch0, client0, bw=1000, delay="5ms")
-    net.addLinkNamedIfce(switch0, server0, bw=1000, delay="5ms")
-    net.addLinkNamedIfce(switch0, server1, bw=1000, delay="5ms")
+    net.addLinkNamedIfce
+    net.addLink(
+        sw0,
+        c0,
+        intfName1="sw0-c0",
+        intfName2="c0-sw0",
+        bw=1000,
+        delay="5ms",
+    )
+    net.addLink(
+        sw0,
+        s0,
+        intfName1="sw0-s0",
+        intfName2="s0-sw0",
+        bw=1000,
+        delay="5ms",
+    )
+    net.addLink(
+        sw0,
+        s1,
+        intfName1="sw0-s1",
+        intfName2="s1-sw0",
+        bw=1000,
+        delay="5ms",
+    )
     # Internal traffic
-    net.addLink(switch0, server0, bw=1000, delay="1ms")
-    net.addLink(switch0, server1, bw=1000, delay="1ms")
+    net.addLink(
+        sw0,
+        s0,
+        intfName1="sw0-s0-int",
+        intfName2="s0-sw0-int",
+        bw=1000,
+        delay="1ms",
+    )
+    net.addLink(
+        sw0,
+        s1,
+        intfName1="sw0-s1-int",
+        intfName2="s1-sw0-int",
+        bw=1000,
+        delay="1ms",
+    )
 
     # === Start network
     log.info("=== Start network ===\n")
