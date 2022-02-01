@@ -15,7 +15,7 @@ if __name__ == "__main__":
         controller=node.Controller,
         xterms=False,
     )
-    mgr = VNFManager(network)
+    manager = VNFManager(network)
 
     network.addController("ctr0")
 
