@@ -1,32 +1,31 @@
 #!/usr/bin/env python3
 
+from distutils.command.build import build
 from mininet import topo, net, node, link, cli
 
-
-class Topology(topo.Topo):
-    def __init__(self):
-        super().__init__()
-
-        self.addSwitch("sw0", **{"protocols": "OpenFlow10"})
-        self.addHost("c0")
-        self.addHost("s0")
-
-        self.addLink("c0", "sw0")
-        self.addLink("s0", "sw0")
+from comnetsemu.net import Containernet, VNFManager
 
 
 if __name__ == "__main__":
-    network = net.Mininet(
-        topo=Topology(),
+    network = Containernet(
         switch=node.OVSKernelSwitch,
         autoSetMacs=True,
         autoStaticArp=True,
         link=link.TCLink,
         controller=node.Controller,
+        xterms=False,
     )
+    mgr = VNFManager(network)
+
+    network.addController("ctr0")
+
+    network.addSwitch("sw0", **{"protocols": "OpenFlow10"})
+    network.addDockerHost("c0", dimage="dev_test", docker_args={})
+    network.addDockerHost("s0", dimage="dev_test", docker_args={})
+
+    network.addLink("c0", "sw0")
+    network.addLink("s0", "sw0")
 
     network.start()
-
     cli.CLI(network)
-
     network.stop()

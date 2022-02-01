@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from mininet import log, link, node
+from mininet import log, link, node, cli
 
-from comnetsemu.net import Containernet
+from comnetsemu.net import Containernet, VNFManager
 
 
 def main():
@@ -11,6 +11,7 @@ def main():
 
     # Network environment
     net = Containernet(controller=node.Controller, link=link.TCLink, xterms=False)
+    mgr = VNFManager(net)
 
     # === Hosts
     log.info("=== Hosts ===\n")
@@ -25,7 +26,7 @@ def main():
         "c0",
         dimage="dev_test",
         ip="192.168.0.9/24",
-        docker_args={"hostname": "c0", "pid_mode": "host"},
+        docker_args={"hostname": "c0"},
     )
 
     # Main server
@@ -99,6 +100,11 @@ def main():
     # === Start network
     log.info("=== Start network ===\n")
     net.start()
+    cli.CLI(net)
+
+    # === Stop network
+    log.info("=== Stop network ===\n")
+    net.stop()
 
 
 if __name__ == "__main__":

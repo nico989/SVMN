@@ -12,4 +12,6 @@ INFO "Cleaning 'mininet'"
 sudo mn --clean
 
 INFO "Cleaning containers"
-sudo docker rm --force "$(docker ps -a -q)"
+# FIXME Check if docker ps is empty. If empty clean otherwise info message e.g. "no container"
+# shellcheck disable=SC2046
+sudo docker rm --force $(docker ps -a -q)
