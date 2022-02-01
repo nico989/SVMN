@@ -1,0 +1,26 @@
+controllers:
+  type: LOCAL
+  data:
+    - name: "controller-0"
+
+switches:
+  data:
+    - name: switch-0
+      links:
+        - to: client-0
+          bw: 1000
+          delay: 5ms
+
+clients:
+  image: dev_test
+  data:
+    - name: client-0
+      ip: 192.168.0.10/24
+
+servers:
+  image: dev_test
+  data:
+    - name: server-0
+      ip: 192.168.0.100/24
+    - name: server-1
+      ip: 192.168.0.101/24
