@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 mininet = "~=2.3.0.dev6"
+pyserde = {version = "~=0.6.0", extras = ["yaml"]}
 
 [dev-packages]
 black = "~=22.1.0"

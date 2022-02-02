@@ -3,7 +3,7 @@
     "files.encoding": "utf8",
     "editor.formatOnSave": true,
     "python.formatting.provider": "black",
-    "python.pythonPath": ".venv",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.analysis.extraPaths": [
         "comnetsemu"
     ]

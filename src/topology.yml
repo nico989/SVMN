@@ -1,7 +1,9 @@
 controllers:
-  type: LOCAL
   data:
-    - name: "controller-0"
+    - name: controller-0
+      ip: 192.1
+      port: 5
+      type: ControllerRemote
 
 switches:
   data:
