@@ -1,6 +1,5 @@
-# Deps directory
-/scripts/deps/*
-!/scripts/deps/.gitkeep
+# Generated requirements.txt
+src/requirements.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,22 @@
+controllers:
+  - name: controller-0
+    type: ControllerLocal
+switches:
+  - name: switch-0
+    links:
+      - node: server-0
+      - node: server-1
+      - node: client-0
+        bandwidth: 1000
+        delay: 1s
+
+hosts:
+  - name: client-0
+    ip: 192.168.0.10/24
+    image: dev_test
+  - name: server-0
+    ip: 192.168.0.100/24
+    image: dev_test
+  - name: server-1
+    ip: 192.168.0.101/24
+    image: dev_test

@@ -13,12 +13,12 @@ sudo mn --clean
 
 # Check for running containers and remove
 INFO "Cleaning containers"
-# shellcheck disable=SC2046
-CONTAINERS=$(docker ps -a -q)
+CONTAINERS="$(docker ps -a -q)"
 readonly CONTAINERS
 if [ -z "$CONTAINERS" ]; then
     WARN "Empty containers"
 else
     INFO "Removing containers"
-    sudo docker rm --force "$CONTAINERS"
+    # shellcheck disable=SC2086
+    sudo docker rm --force ${CONTAINERS}
 fi

@@ -5,7 +5,8 @@ name = "pypi"
 
 [packages]
 mininet = "~=2.3.0.dev6"
-pyserde = {version = "~=0.6.0", extras = ["yaml"]}
+pyserde = {ref = "master", git = "https://github.com/yukinarit/pyserde.git"}
+pyyaml = "~=6.0"
 
 [dev-packages]
 black = "~=22.1.0"

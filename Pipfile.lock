@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "90219e06a7393cd935b1fad945de5469db0b767744d65ba3c65fc1b9fcf2a674"
+            "sha256": "826df354623b8ffdc58cf974b1cfecb98357d2deb8cbca4a06c2b90e6c18740e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -115,15 +115,8 @@
             "version": "==0.4.3"
         },
         "pyserde": {
-            "extras": [
-                "yaml"
-            ],
-            "hashes": [
-                "sha256:428fdb97824626e83f962c5b26ef67a3880fe11c5ab722f731fce481142d28b4",
-                "sha256:89775789b20b9e03ee773502a619361063613c284762b77c5d27cfa000f3a94c"
-            ],
-            "index": "pypi",
-            "version": "==0.6.0"
+            "git": "https://github.com/yukinarit/pyserde.git",
+            "ref": "6c7c383f8ab15c5ba7b0a1dcf39ab51382efdc98"
         },
         "pyyaml": {
             "hashes": [
@@ -161,6 +154,7 @@
                 "sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174",
                 "sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5"
             ],
+            "index": "pypi",
             "version": "==6.0"
         },
         "setuptools": {
@@ -336,6 +330,7 @@
                 "sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174",
                 "sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5"
             ],
+            "index": "pypi",
             "version": "==6.0"
         },
         "six": {
