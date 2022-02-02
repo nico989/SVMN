@@ -17,7 +17,7 @@ INFO "Cleaning containers"
 CONTAINERS=$(docker ps -a -q)
 readonly CONTAINERS
 if [ -z "$CONTAINERS" ]; then
-    INFO "Empty containers"
+    WARN "Empty containers"
 else
     INFO "Removing containers"
     sudo docker rm --force "$CONTAINERS"

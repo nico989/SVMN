@@ -3,6 +3,8 @@
 # Current directory
 __DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
+VENV_DIR="${__DIRNAME}/../.venv"
+readonly VENV_DIR
 
 # Include commons
 # shellcheck source=__commons.sh
@@ -21,8 +23,12 @@ assert_tool gem
 
 # Create .venv directory
 INFO "=== Structure ==="
-INFO "Creating '.venv' directory"
-mkdir "${__DIRNAME}/../.venv"
+if [ ! -d "$VENV_DIR" ]; then
+    INFO "Creating '.venv' directory"
+    mkdir "${VENV_DIR}"
+else
+    WARN "'.venv' directory already exists"
+fi
 
 # Install Python packages
 INFO "=== Python packages ==="
