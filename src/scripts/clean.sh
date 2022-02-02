@@ -11,7 +11,14 @@ source "${__DIRNAME}/__commons.sh"
 INFO "Cleaning 'mininet'"
 sudo mn --clean
 
+# Check for running containers and remove
 INFO "Cleaning containers"
-# FIXME Check if docker ps is empty. If empty clean otherwise info message e.g. "no container"
 # shellcheck disable=SC2046
-sudo docker rm --force $(docker ps -a -q)
+CONTAINERS=$(docker ps -a -q)
+readonly CONTAINERS
+if [ -z "$CONTAINERS" ]; then
+    INFO "Empty containers"
+else
+    INFO "Removing containers"
+    sudo docker rm --force "$CONTAINERS"
+fi
