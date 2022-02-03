@@ -4,15 +4,31 @@ controllers:
 
 switches:
   - name: sw0
+    links:
+      - node: c0
+        bandwidth: 1000
+        delay: 5ms
+      - node: s0
+        bandwidth: 1000
+        delay: 5ms
+      - node: s0
+        bandwidth: 1000
+        delay: 1ms
+        fromInterface: sw0-s0-int
+        toInterface: s0-sw0-int
+      - node: s1
+        bandwidth: 1000
+        delay: 5ms
+      - node: s1
+        bandwidth: 1000
+        delay: 1ms
+        fromInterface: sw0-s1-int
+        toInterface: s1-sw0-int
 
 hosts:
   - name: c0
     ip: 192.168.0.10/24
     image: dev_test
-    links:
-      - node: sw0
-        bandwidth: 1000
-        delay: 5ms
   - name: s0
     ip: 192.168.0.100/24
     mac: 00:00:00:00:00:12
@@ -20,15 +36,6 @@ hosts:
     interfaces:
       - name: s0-sw0-int
         ip: 10.0.0.100/24
-    links:
-      - node: sw0
-        bandwidth: 1000
-        delay: 5ms
-      - node: sw0
-        bandwidth: 1000
-        delay: 1ms
-        fromInterface: s0-sw0-int
-        toInterface: sw0-s0-int
   - name: s1
     ip: 192.168.0.101/24
     mac: 00:00:00:00:00:12
@@ -36,12 +43,3 @@ hosts:
     interfaces:
       - name: s1-sw0-int
         ip: 10.0.0.101/24
-    links:
-      - node: sw0
-        bandwidth: 1000
-        delay: 5ms
-      - node: sw0
-        bandwidth: 1000
-        delay: 1ms
-        fromInterface: s1-sw0-int
-        toInterface: sw0-s1-int

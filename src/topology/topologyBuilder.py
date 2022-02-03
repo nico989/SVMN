@@ -1,5 +1,6 @@
-from typing import Union
-from topologyParser import ControllerLocal, ControllerRemote, Topology
+from typing import Dict, Union
+from comnetsemu.node import DockerHost
+from topologyParser import ControllerLocal, ControllerRemote, Host, Topology
 from comnetsemu.net import Containernet
 from mininet import node, link as mnlink
 
@@ -32,8 +33,24 @@ def buildSwitches(network: Containernet, topology: Topology) -> None:
 
         network.addSwitch(switch.name, **params)
 
+        # Build links
+        for link in switch.links:
+            params = {}
 
-def buildHosts(network: Containernet, topology: Topology) -> None:
+            if link.bandwidth:
+                params["bw"] = link.bandwidth
+            if link.delay:
+                params["delay"] = link.delay
+            if link.fromInterface and link.toInterface:
+                params["intfName1"] = link.fromInterface
+                params["intfName2"] = link.toInterface
+
+            network.addLink(switch.name, link.node, **params)
+
+
+def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Host]:
+    hostInstances: Dict[DockerHost, Host] = {}
+
     for host in topology.hosts:
         docker_args = {"hostname": host.name, "pid_mode": "host"}
         params = {
@@ -45,25 +62,18 @@ def buildHosts(network: Containernet, topology: Topology) -> None:
         if host.mac:
             params["mac"] = host.mac
 
-        node = network.addDockerHost(host.name, **params)
+        instance = network.addDockerHost(host.name, **params)
 
-        # Build links
-        for link in host.links:
-            params = {}
+        # Add instance
+        hostInstances[instance] = host
 
-            if link.bandwidth:
-                params["bw"] = link.bandwidth
-            if link.delay:
-                params["delay"] = link.delay
-            if link.fromInterface and link.toInterface:
-                params["intfName1"] = link.fromInterface
-                params["intfName2"] = link.toInterface
+    return hostInstances
 
-            network.addLink(host.name, link.node, **params)
 
-        # Build interfaces
+def buildHostsNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
+    for instance, host in hostInstances.items():
         for interface in host.interfaces:
-            node.cmd(f"ip addr add {interface.ip} dev {interface.name}")
+            instance.cmd(f"ip addr add {interface.ip} dev {interface.name}")
 
 
 def buildTopology(topology: Topology) -> Containernet:
@@ -71,13 +81,14 @@ def buildTopology(topology: Topology) -> Containernet:
         switch=node.OVSKernelSwitch,
         autoSetMacs=True,
         autoStaticArp=True,
+        build=False,
         link=mnlink.TCLink,
         xterms=False,
     )
 
     buildControllers(network, topology)
+    hostInstances = buildHosts(network, topology)
     buildSwitches(network, topology)
-    # Always last!
-    buildHosts(network, topology)
+    buildHostsNetworkInterfaces(hostInstances)
 
     return network

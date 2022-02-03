@@ -19,17 +19,6 @@ class ControllerRemote:
 
 
 @serde
-class Switch:
-    name: str
-
-
-@serde
-class NetworkInterface:
-    name: str
-    ip: ipaddress.IPv4Interface
-
-
-@serde
 class NetworkLink:
     node: str
     bandwidth: Optional[int]
@@ -39,13 +28,24 @@ class NetworkLink:
 
 
 @serde
+class Switch:
+    name: str
+    links: List[NetworkLink] = field(default_factory=list)
+
+
+@serde
+class NetworkInterface:
+    name: str
+    ip: ipaddress.IPv4Interface
+
+
+@serde
 class Host:
     name: str
     ip: ipaddress.IPv4Interface
     mac: Optional[str]
     image: str
     interfaces: List[NetworkInterface] = field(default_factory=list)
-    links: List[NetworkLink] = field(default_factory=list)
 
 
 @serde(tagging=InternalTagging("type"))
