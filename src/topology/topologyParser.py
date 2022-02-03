@@ -1,7 +1,7 @@
 import ipaddress
 import enum
 from typing import List, Optional, Union
-from serde import InternalTagging, serde
+from serde import InternalTagging, field, serde
 from serde.yaml import from_yaml
 from serde.json import from_json
 
@@ -19,23 +19,33 @@ class ControllerRemote:
 
 
 @serde
-class SwitchLink:
-    node: str
-    bandwidth: Optional[int]
-    delay: Optional[str]
+class Switch:
+    name: str
 
 
 @serde
-class Switch:
+class NetworkInterface:
     name: str
-    links: List[SwitchLink]
+    ip: ipaddress.IPv4Interface
+
+
+@serde
+class NetworkLink:
+    node: str
+    bandwidth: Optional[int]
+    delay: Optional[str]
+    fromInterface: Optional[str]
+    toInterface: Optional[str]
 
 
 @serde
 class Host:
     name: str
     ip: ipaddress.IPv4Interface
+    mac: Optional[str]
     image: str
+    interfaces: List[NetworkInterface] = field(default_factory=list)
+    links: List[NetworkLink] = field(default_factory=list)
 
 
 @serde(tagging=InternalTagging("type"))

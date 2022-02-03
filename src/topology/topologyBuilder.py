@@ -26,6 +26,13 @@ def buildControllers(network: Containernet, topology: Topology) -> None:
         )
 
 
+def buildSwitches(network: Containernet, topology: Topology) -> None:
+    for switch in topology.switches:
+        params = {}
+
+        network.addSwitch(switch.name, **params)
+
+
 def buildHosts(network: Containernet, topology: Topology) -> None:
     for host in topology.hosts:
         docker_args = {"hostname": host.name, "pid_mode": "host"}
@@ -35,23 +42,28 @@ def buildHosts(network: Containernet, topology: Topology) -> None:
             "docker_args": docker_args,
         }
 
-        network.addDockerHost(host.name, **params)
+        if host.mac:
+            params["mac"] = host.mac
 
+        node = network.addDockerHost(host.name, **params)
 
-def buildSwitches(network: Containernet, topology: Topology) -> None:
-    for switch in topology.switches:
-        switchParams = {}
+        # Build links
+        for link in host.links:
+            params = {}
 
-        network.addSwitch(switch.name, **switchParams)
-
-        for link in switch.links:
-            linkParams = {}
             if link.bandwidth:
-                linkParams["bw"] = link.bandwidth
+                params["bw"] = link.bandwidth
             if link.delay:
-                linkParams["delay"] = link.delay
+                params["delay"] = link.delay
+            if link.fromInterface and link.toInterface:
+                params["intfName1"] = link.fromInterface
+                params["intfName2"] = link.toInterface
 
-            network.addLink(switch.name, link.node, **linkParams)
+            network.addLink(host.name, link.node, **params)
+
+        # Build interfaces
+        for interface in host.interfaces:
+            node.cmd(f"ip addr add {interface.ip} dev {interface.name}")
 
 
 def buildTopology(topology: Topology) -> Containernet:
@@ -64,8 +76,8 @@ def buildTopology(topology: Topology) -> Containernet:
     )
 
     buildControllers(network, topology)
-    buildHosts(network, topology)
-    # Always last due to addLink
     buildSwitches(network, topology)
+    # Always last!
+    buildHosts(network, topology)
 
     return network
