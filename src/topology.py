@@ -20,10 +20,10 @@ def fileFormat(file: str) -> topologyParser.Format:
 
 def getTopology(file: str) -> topologyBuilder.Topology:
     topology = None
-    format = fileFormat(args.file)
+    format = fileFormat(file)
 
-    with open(args.file) as file:
-        topology = file.read()
+    with open(file) as f:
+        topology = f.read()
 
     return topologyParser.parseTopology(topology, format)
 

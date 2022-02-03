@@ -3,6 +3,8 @@ from comnetsemu.node import DockerHost
 from comnetsemu.net import Containernet
 from mininet import node, link as mnlink
 from topologyParser import ControllerLocal, ControllerRemote, Host, Topology
+from logger import logger
+from serde.json import to_json
 
 
 def controllerType(controller: Union[ControllerLocal, ControllerRemote]):
@@ -16,6 +18,7 @@ def controllerType(controller: Union[ControllerLocal, ControllerRemote]):
 
 def buildControllers(network: Containernet, topology: Topology) -> None:
     for controller in topology.controllers:
+        logger.info(f"Controller {controller.name}: {to_json(controller)}")
         params = {}
 
         if isinstance(network.controller, ControllerRemote):
@@ -29,6 +32,7 @@ def buildControllers(network: Containernet, topology: Topology) -> None:
 
 def buildSwitches(network: Containernet, topology: Topology) -> None:
     for switch in topology.switches:
+        logger.info(f"Switch {switch.name}: {to_json(switch)}")
         params = {}
 
         network.addSwitch(switch.name, **params)
@@ -52,6 +56,7 @@ def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Ho
     hostInstances: Dict[DockerHost, Host] = {}
 
     for host in topology.hosts:
+        logger.info(f"Host {host.name}: {to_json(host)}")
         docker_args = {"hostname": host.name, "pid_mode": "host"}
         params = {
             "ip": host.ip.with_prefixlen,
@@ -86,8 +91,11 @@ def buildTopology(topology: Topology) -> Containernet:
         xterms=False,
     )
 
+    logger.info("=== CONTROLLERS ===")
     buildControllers(network, topology)
+    logger.info("=== HOSTS ===")
     hostInstances = buildHosts(network, topology)
+    logger.info("=== SWITCHES ===")
     buildSwitches(network, topology)
     buildHostsNetworkInterfaces(hostInstances)
 
