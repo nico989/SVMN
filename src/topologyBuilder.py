@@ -1,8 +1,8 @@
 from typing import Dict, Union
 from comnetsemu.node import DockerHost
-from topologyParser import ControllerLocal, ControllerRemote, Host, Topology
 from comnetsemu.net import Containernet
 from mininet import node, link as mnlink
+from topologyParser import ControllerLocal, ControllerRemote, Host, Topology
 
 
 def controllerType(controller: Union[ControllerLocal, ControllerRemote]):
