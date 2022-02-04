@@ -7,7 +7,8 @@ name = "pypi"
 mininet = "~=2.3.0.dev6"
 pyserde = {ref = "master", git = "https://github.com/yukinarit/pyserde.git"}
 pyyaml = "~=6.0"
-loguru = "*"
+loguru = "~=0.6.0"
+ryu = "~=4.34"
 
 [dev-packages]
 black = "~=22.1.0"
