@@ -21,8 +21,8 @@ def buildControllers(network: Containernet, topology: Topology) -> None:
         logger.info(f"Controller {controller.name}: {to_json(controller)}")
         params = {}
 
-        if isinstance(network.controller, ControllerRemote):
-            params["ip"] = controller.ip
+        if isinstance(controller, ControllerRemote):
+            params["ip"] = str(controller.ip)
             params["port"] = controller.port
 
         network.addController(
@@ -31,25 +31,25 @@ def buildControllers(network: Containernet, topology: Topology) -> None:
 
 
 def buildSwitches(network: Containernet, topology: Topology) -> None:
-    for switch in topology.switches:
+    for index, switch in enumerate(topology.switches):
         logger.info(f"Switch {switch.name}: {to_json(switch)}")
-        params = {}
+        switchParams = {"protocols": "OpenFlow10", "dpid": "%016x" % (index + 1)}
 
-        network.addSwitch(switch.name, **params)
+        network.addSwitch(switch.name, **switchParams)
 
         # Build links
         for link in switch.links:
-            params = {}
+            linkParams = {}
 
             if link.bandwidth:
-                params["bw"] = link.bandwidth
+                linkParams["bw"] = link.bandwidth
             if link.delay:
-                params["delay"] = link.delay
+                linkParams["delay"] = link.delay
             if link.fromInterface and link.toInterface:
-                params["intfName1"] = link.fromInterface
-                params["intfName2"] = link.toInterface
+                linkParams["intfName1"] = link.fromInterface
+                linkParams["intfName2"] = link.toInterface
 
-            network.addLink(switch.name, link.node, **params)
+            network.addLink(switch.name, link.node, **linkParams)
 
 
 def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Host]:
@@ -61,6 +61,7 @@ def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Ho
         params = {
             "ip": host.ip.with_prefixlen,
             "dimage": host.image,
+            "inNamespace": True,
             "docker_args": docker_args,
         }
 
@@ -85,7 +86,7 @@ def buildTopology(topology: Topology) -> Containernet:
     network = Containernet(
         switch=node.OVSKernelSwitch,
         autoSetMacs=True,
-        autoStaticArp=True,
+        autoStaticArp=False,
         build=False,
         link=mnlink.TCLink,
         xterms=False,
