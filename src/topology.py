@@ -3,7 +3,7 @@
 import argparse
 import os
 from logger import logger
-import topologyBuilder, topologyParser
+from topology import topologyBuilder, topologyParser
 from mininet import cli
 from comnetsemu.net import VNFManager
 

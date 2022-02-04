@@ -9,6 +9,7 @@ pyserde = {ref = "master", git = "https://github.com/yukinarit/pyserde.git"}
 pyyaml = "~=6.0"
 loguru = "~=0.6.0"
 ryu = "~=4.34"
+macaddress = "~=1.2.0"
 
 [dev-packages]
 black = "~=22.1.0"

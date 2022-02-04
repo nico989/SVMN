@@ -50,7 +50,7 @@ INFO "Syncing directory '$WATCH_DIR'"
 sync
 # Install Python dependencies
 INFO "Installing Python dependencies from generated 'requirements.txt'"
-(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'pip install -r comnetsemu/app/morphing_slices/requirements.txt') || { FATAL "Error installing Python dependencies from 'requirements.txt'"; exit 1; }
+(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'sudo pip install -r comnetsemu/app/morphing_slices/requirements.txt') || { FATAL "Error installing Python dependencies from 'requirements.txt'"; exit 1; }
 # Watcher
 INFO "Starting watcher on '$WATCH_DIR' with destination '$DEST_DIR'";
 while inotifywait --recursive --quiet --event modify,create,delete,move "$WATCH_DIR"; do
