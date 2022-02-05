@@ -20,11 +20,6 @@ jobs:
       - name: Environment
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Test
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ env.RELEASE_VERSION }}
-
       - name: Install pipenv
         run: pipx install pipenv
 
@@ -41,11 +36,9 @@ jobs:
         run: scripts/prod.sh
 
       - name: Release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v1
         with:
-          title: Morhing Slices ${{ github.ref }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
+          body: Morhing Slices ${{ env.RELEASE_VERSION }}
           files: |
             morphing_slices.tar.gz
             LICENSE
