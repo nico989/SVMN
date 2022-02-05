@@ -33,9 +33,9 @@ def buildControllers(network: Containernet, topology: Topology) -> None:
 def buildSwitches(network: Containernet, topology: Topology) -> None:
     for index, switch in enumerate(topology.switches):
         logger.info(f"Switch {switch.name}: {to_json(switch)}")
-        switchParams = {"protocols": "OpenFlow10", "dpid": "%016x" % (index + 1)}
+        params = {"protocols": "OpenFlow10", "dpid": "%016x" % (index + 1)}
 
-        network.addSwitch(switch.name, **switchParams)
+        network.addSwitch(switch.name, **params)
 
 
 def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Host]:
