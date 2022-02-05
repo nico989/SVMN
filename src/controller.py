@@ -7,6 +7,7 @@ from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
+from logger import logger
 
 
 class SimpleSwitch(app_manager.RyuApp):
@@ -34,6 +35,7 @@ class SimpleSwitch(app_manager.RyuApp):
             flags=ofproto.OFPFF_SEND_FLOW_REM,
             actions=actions,
         )
+
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -45,19 +47,21 @@ class SimpleSwitch(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
+        # Ignore LLDP packet
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-            # ignore lldp packet
             return
+
         dst = eth.dst
         src = eth.src
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)
-
-        # learn a mac address to avoid FLOOD next time.
+        # Learn mac address
         self.mac_to_port[dpid][src] = msg.in_port
+
+        logger.info(
+            f"Packet in dpid {dpid}: {{ src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
+        )
 
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
@@ -66,7 +70,7 @@ class SimpleSwitch(app_manager.RyuApp):
 
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
 
-        # install a flow to avoid packet_in next time
+        # Add flow to avoid repeat packet_in
         if out_port != ofproto.OFPP_FLOOD:
             self.add_flow(datapath, msg.in_port, dst, src, actions)
 
@@ -81,6 +85,7 @@ class SimpleSwitch(app_manager.RyuApp):
             actions=actions,
             data=data,
         )
+
         datapath.send_msg(out)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
@@ -88,13 +93,13 @@ class SimpleSwitch(app_manager.RyuApp):
         msg = ev.msg
         reason = msg.reason
         port_no = msg.desc.port_no
-
         ofproto = msg.datapath.ofproto
+
         if reason == ofproto.OFPPR_ADD:
-            self.logger.info("port added %s", port_no)
+            logger.info(f"Port added: {port_no}")
         elif reason == ofproto.OFPPR_DELETE:
-            self.logger.info("port deleted %s", port_no)
+            logger.info(f"Port deleted: {port_no}")
         elif reason == ofproto.OFPPR_MODIFY:
-            self.logger.info("port modified %s", port_no)
+            logger.info(f"Port modified: {port_no}")
         else:
-            self.logger.info("Illeagal port state %s %s", port_no, reason)
+            logger.warning(f"Illeagal port state '{reason}': {port_no}")

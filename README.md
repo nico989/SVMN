@@ -72,6 +72,7 @@ To correctly configure the project in `WSL` you must follow these steps:
    ```
 
    See [this issue](https://github.com/hashicorp/vagrant/issues/11623) for more information.
+
 1. Run the initialization script:
 
    ```bash
@@ -85,6 +86,70 @@ To correctly configure the project in `WSL` you must follow these steps:
 ```bash
 scripts/dev.sh
 ```
+
+## Production
+
+### Distribution
+
+Generate `morphing_slices.tar.gz` file:
+
+```bash
+scripts/prod.sh
+```
+
+### Installation
+
+> All commands must be executed inside `comnetsemu`
+
+1. Create `morphing_slices` directory:
+
+   ```bash
+   mkdir morphing_slices
+   ```
+
+1. Extract `morphing_slices.tar.gz` into `morphing_slices` directory:
+
+   ```bash
+   tar -xzf morphing_slices.tar.gz -D morphing_slices
+   ```
+
+1. Change working directory to `morphing_slices`:
+
+   ```bash
+   cd morphing_slices
+   ```
+
+1. Install Python dependencies:
+
+   ```bash
+   sudo pip install -r requirements.txt
+   ```
+
+## Clean
+
+Ensure to clean old works in `comnetsemu`.
+
+> All commands must be executed inside `comnetsemu`
+
+```bash
+scripts/clean.sh
+```
+
+## Scenario 1
+
+> All commands must be executed inside `comnetsemu`
+
+### Terminal 1
+
+1. Create network topology:
+
+   ```bash
+   sudo python3 topology.py -f topology.yaml
+   ```
+
+### Terminal 2
+
+### Terminal 3
 
 ## License
 

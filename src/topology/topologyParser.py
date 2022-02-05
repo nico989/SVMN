@@ -44,7 +44,9 @@ class NetworkInterface:
 class Host:
     name: str
     ip: ipaddress.IPv4Interface
-    mac: Optional[str]
+    mac: Optional[EUI48] = field(
+        serializer=lambda x: x and str(x), deserializer=lambda x: x and EUI48(x)
+    )
     image: str
     interfaces: List[NetworkInterface] = field(default_factory=list)
 
