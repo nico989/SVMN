@@ -4,11 +4,11 @@ on:
   push:
     tags:
       - "v*"
-  workflow_run:
-    workflows:
-      - ci
-    types:
-      - completed
+  #workflow_run:
+  #  workflows:
+  #    - ci
+  #  types:
+  #    - completed
 
 jobs:
   release:
