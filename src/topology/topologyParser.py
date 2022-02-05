@@ -1,7 +1,6 @@
 import ipaddress
 import enum
 from typing import List, Optional, Union
-from macaddress import EUI48
 from serde import InternalTagging, field, serde
 from serde.yaml import from_yaml
 from serde.json import from_json
