@@ -81,7 +81,7 @@ To correctly configure the project in `WSL` you must follow these steps:
 
 ## Development
 
-> Automatically keeps updated the working directory with `comnetsemu`
+> Prepare `comnetsemu` and keeps updated working directory
 
 ```bash
 scripts/dev.sh
