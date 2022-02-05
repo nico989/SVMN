@@ -37,20 +37,6 @@ def buildSwitches(network: Containernet, topology: Topology) -> None:
 
         network.addSwitch(switch.name, **switchParams)
 
-        # Build links
-        for link in switch.links:
-            linkParams = {}
-
-            if link.bandwidth:
-                linkParams["bw"] = link.bandwidth
-            if link.delay:
-                linkParams["delay"] = link.delay
-            if link.fromInterface and link.toInterface:
-                linkParams["intfName1"] = link.fromInterface
-                linkParams["intfName2"] = link.toInterface
-
-            network.addLink(switch.name, link.node, **linkParams)
-
 
 def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Host]:
     hostInstances: Dict[DockerHost, Host] = {}
@@ -76,13 +62,37 @@ def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Ho
     return hostInstances
 
 
-def buildHostsNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
+def buildNetworkLinks(network: Containernet, topology: Topology) -> None:
+    for switch in topology.switches:
+        logger.info(f"Switch {switch.name}:")
+
+        for link in switch.links:
+            logger.info(f" {to_json(link)}")
+            params = {}
+
+            if link.bandwidth:
+                params["bw"] = link.bandwidth
+            if link.delay:
+                params["delay"] = link.delay
+            if link.fromInterface and link.toInterface:
+                params["intfName1"] = link.fromInterface
+                params["intfName2"] = link.toInterface
+
+            network.addLink(switch.name, link.node, **params)
+
+
+def buildNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
     for instance, host in hostInstances.items():
+        logger.info(f"Host {host.name}:")
+
         for interface in host.interfaces:
+            logger.info(f" {to_json(interface)}")
             instance.cmd(f"ip addr add {interface.ip} dev {interface.name}")
 
 
 def buildTopology(topology: Topology) -> Containernet:
+    logger.info("=== NETWORK ===")
+    logger.info(f"Network: {to_json(topology.network)}")
     network = Containernet(
         switch=node.OVSKernelSwitch,
         autoSetMacs=topology.network.autoMac,
@@ -92,10 +102,14 @@ def buildTopology(topology: Topology) -> Containernet:
 
     logger.info("=== CONTROLLERS ===")
     buildControllers(network, topology)
-    logger.info("=== HOSTS ===")
-    hostInstances = buildHosts(network, topology)
     logger.info("=== SWITCHES ===")
     buildSwitches(network, topology)
-    buildHostsNetworkInterfaces(hostInstances)
+    logger.info("=== HOSTS ===")
+    hostInstances = buildHosts(network, topology)
+
+    logger.info("=== NETWORK LINKS ===")
+    buildNetworkLinks(network, topology)
+    logger.info("=== NETWORK INTERFACES ===")
+    buildNetworkInterfaces(hostInstances)
 
     return network
