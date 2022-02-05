@@ -38,7 +38,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          body: Morhing Slices ${{ env.RELEASE_VERSION }}
+          body: Morphing Slices ${{ env.RELEASE_VERSION }}
           files: |
             morphing_slices.tar.gz
             LICENSE
