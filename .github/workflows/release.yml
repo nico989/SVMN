@@ -3,12 +3,7 @@ name: release
 on:
   push:
     tags:
-      - "v*"
-  #workflow_run:
-  #  workflows:
-  #    - ci
-  #  types:
-  #    - completed
+      - "v*.*.*"
 
 jobs:
   release:
