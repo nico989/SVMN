@@ -1,9 +1,16 @@
+from email.policy import default
 import ipaddress
 import enum
 from typing import List, Optional, Union
 from serde import InternalTagging, field, serde
 from serde.yaml import from_yaml
 from serde.json import from_json
+
+
+@serde
+class Network:
+    autoMac: bool = field(default=False)
+    autoArp: bool = field(default=False)
 
 
 @serde
@@ -50,6 +57,7 @@ class Host:
 
 @serde(tagging=InternalTagging("type"))
 class Topology:
+    network: Network
     controllers: List[Union[ControllerLocal, ControllerRemote]]
     switches: List[Switch]
     hosts: List[Host]

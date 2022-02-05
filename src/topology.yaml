@@ -1,3 +1,7 @@
+network:
+  autoMac: true
+  autoArp: true
+
 controllers:
   - name: controller0
     ip: 127.0.0.1

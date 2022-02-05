@@ -85,10 +85,9 @@ def buildHostsNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
 def buildTopology(topology: Topology) -> Containernet:
     network = Containernet(
         switch=node.OVSKernelSwitch,
-        autoSetMacs=True,
-        autoStaticArp=True,
+        autoSetMacs=topology.network.autoMac,
+        autoStaticArp=topology.network.autoArp,
         link=mnlink.TCLink,
-        xterms=False,
     )
 
     logger.info("=== CONTROLLERS ===")
