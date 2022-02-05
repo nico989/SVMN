@@ -1,0 +1,42 @@
+name: release
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+  push:
+    branches: [main]
+    tags: [v*]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install pipenv
+        run: pipx install pipenv
+
+      - name: Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+          cache: "pipenv"
+
+      - name: Scripts permissions
+        run: chmod -R +x scripts
+
+      - name: Generate morphing_slices.tar.gz
+        run: scripts/prod.sh
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            morphing_slices.tar.gz
+            LICENSE
