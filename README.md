@@ -87,19 +87,25 @@ To correctly configure the project in `WSL` you must follow these steps:
 scripts/dev.sh
 ```
 
-## Production
-
 ### Distribution
 
-Generate `morphing_slices.tar.gz` file:
+Generate `morphing_slices.tar.gz`:
 
 ```bash
 scripts/prod.sh
 ```
 
+## Production
+
 ### Installation
 
 > All commands must be executed inside `comnetsemu`
+
+1. Download `morphing_slices.tar.gz` from GitHub release:
+
+   ```bash
+   wget https://github.com/nico989/SVMN/releases/latest/download/morphing_slices.tar.gz
+   ```
 
 1. Create `morphing_slices` directory:
 
