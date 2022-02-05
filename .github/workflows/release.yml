@@ -17,6 +17,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Environment
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+
       - name: Install pipenv
         run: pipx install pipenv
 
@@ -32,9 +40,11 @@ jobs:
       - name: Generate morphing_slices.tar.gz
         run: scripts/prod.sh
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Release
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          title: Morhing Slices ${{ github.ref }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
           files: |
             morphing_slices.tar.gz
