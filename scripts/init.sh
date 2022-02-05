@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Current directory
-__DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+__DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
-VENV_DIR="${__DIRNAME}/../.venv"
+VENV_DIR="$(readlink -m "${__DIRNAME}"/../.venv)"
 readonly VENV_DIR
 
 # Include commons

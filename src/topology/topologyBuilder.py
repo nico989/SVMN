@@ -86,8 +86,7 @@ def buildTopology(topology: Topology) -> Containernet:
     network = Containernet(
         switch=node.OVSKernelSwitch,
         autoSetMacs=True,
-        autoStaticArp=False,
-        build=False,
+        autoStaticArp=True,
         link=mnlink.TCLink,
         xterms=False,
     )

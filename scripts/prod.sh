@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Current directory
-__DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+__DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
 # Source directory
 SRC_DIR="$(readlink -m "${__DIRNAME}"/../src)"

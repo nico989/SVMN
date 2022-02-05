@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Current directory
-__THIS_DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+__THIS_DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __THIS_DIRNAME
 # Utils directory
 UTILS_DIR="$(readlink -m "${__THIS_DIRNAME}"/utils)"

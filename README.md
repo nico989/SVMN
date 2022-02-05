@@ -155,7 +155,27 @@ scripts/clean.sh
 
 ### Terminal 2
 
+1. Start FlowVisor container:
+
+   ```bash
+   scripts/flowvisor.sh
+   ```
+
+1. Run FlowVisor:
+
+   ```bash
+   ./scenario_1.sh
+   ```
+
 ### Terminal 3
+
+1. Run Ryu controller:
+
+   ```bash
+   ryu run --observe-links --ofp-tcp-listen-port 10001 --wsapi-port 8082
+   "$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")
+   /app/gui_topology/gui_topology.py" controller.py
+   ```
 
 ## License
 

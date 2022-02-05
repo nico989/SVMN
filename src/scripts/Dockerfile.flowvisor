@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1
+
+# --- Image
+FROM ubuntu:trusty
+LABEL maintainers="carlo.corradini@studenti.unitn.it, nicolo.vinci@studenti.unitn.it" \
+    name="FlowVisor" \
+    version="0.0.1"
+# Working directory
+WORKDIR /root/flowvisor_scripts
+
+# --- Configuration
+ARG FLOWVISOR_PASSWORD=password
+
+# --- Copy
+COPY scripts/__commons.sh /root/scripts/__commons.sh
+COPY scripts/utils /root/scripts/utils
+
+# --- Packages
+RUN apt-get update \
+    && apt-get install -y \
+    wget gnupg2 coreutils
+
+# --- FlowVisor
+# GPG key
+RUN wget http://updates.onlab.us/GPG-KEY-ONLAB
+RUN apt-key add GPG-KEY-ONLAB
+# Repository
+RUN echo "deb http://updates.onlab.us/debian stable/" | tee -a /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
+# Install
+RUN apt-get update --allow-unauthenticated \
+    && apt-get install -y flowvisor
+# Configuration
+RUN echo ${FLOWVISOR_PASSWORD} > /etc/flowvisor/flowvisor.passwd
+RUN chown flowvisor:flowvisor /etc/flowvisor/flowvisor.passwd
+RUN fvconfig generate /etc/flowvisor/config.json flowvisor ${FLOWVISOR_PASSWORD}
+RUN sed -i 's/"run_topology_server": false/"run_topology_server": true/' /etc/flowvisor/config.json
+RUN fvconfig load /etc/flowvisor/config.json
+RUN sed -i -e "s/\/sbin\/flowvisor /\/sbin\/flowvisor -l /ig" /etc/init.d/flowvisor
+RUN fvconfig load /etc/flowvisor/config.json && chown -R flowvisor:flowvisor /usr/share/db/flowvisor/
+
+# --- CLEAN
+RUN apt-get clean
+
+# --- BOOTSTRAP
+CMD ["bash"]
