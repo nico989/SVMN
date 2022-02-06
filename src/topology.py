@@ -29,6 +29,7 @@ def getTopology(file: str) -> topologyBuilder.Topology:
 
 
 if __name__ == "__main__":
+    # Arguments
     parser = argparse.ArgumentParser(
         description="Topology builder",
         formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=40),
@@ -38,11 +39,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    logger.info(f"Analyzing topology {args.file}")
+    # Topology
+    logger.info(f"Analyzing topology file '{args.file}'")
     topology = getTopology(args.file)
     network = topologyBuilder.buildTopology(topology)
 
-    mgr = VNFManager(network)
+    # Network
+    manager = VNFManager(network)
     network.start()
     cli.CLI(network)
     network.stop()
