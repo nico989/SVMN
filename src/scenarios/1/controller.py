@@ -7,7 +7,6 @@ from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
-from logger import logger
 
 
 class SimpleSwitch(app_manager.RyuApp):
@@ -59,7 +58,7 @@ class SimpleSwitch(app_manager.RyuApp):
         # Learn mac address
         self.mac_to_port[dpid][src] = msg.in_port
 
-        logger.info(
+        self.logger.info(
             f"Packet in dpid {dpid}: {{ src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
         )
 
@@ -96,10 +95,10 @@ class SimpleSwitch(app_manager.RyuApp):
         ofproto = msg.datapath.ofproto
 
         if reason == ofproto.OFPPR_ADD:
-            logger.info(f"Port added: {port_no}")
+            self.logger.info(f"Port added: {port_no}")
         elif reason == ofproto.OFPPR_DELETE:
-            logger.info(f"Port deleted: {port_no}")
+            self.logger.info(f"Port deleted: {port_no}")
         elif reason == ofproto.OFPPR_MODIFY:
-            logger.info(f"Port modified: {port_no}")
+            self.logger.info(f"Port modified: {port_no}")
         else:
-            logger.warning(f"Illeagal port state '{reason}': {port_no}")
+            self.logger.warning(f"Illeagal port state '{reason}': {port_no}")

@@ -150,7 +150,7 @@ scripts/clean.sh
 1. Create network topology:
 
    ```bash
-   sudo python3 topology.py -f topology.yaml
+   sudo python3 topology.py -f scenarios/1/topology.yaml
    ```
 
 ### Terminal 2
@@ -158,24 +158,24 @@ scripts/clean.sh
 1. Start FlowVisor container:
 
    ```bash
-   scripts/flowvisor.sh
+   scripts/flowvisor.sh --volume scenarios/1
    ```
 
 1. Run FlowVisor:
 
    ```bash
-   ./scenario_1.sh
+   ./flowvisor.sh
    ```
 
 ### Terminal 3
 
-1. Run Ryu controller:
+1. Start Ryu controller:
 
    ```bash
-   ryu run --observe-links --ofp-tcp-listen-port 10001 --wsapi-port 8082
-   "$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")
-   /app/gui_topology/gui_topology.py" controller.py
+   scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082
    ```
+
+1. Open browser at <http://localhost:8082>
 
 ## License
 

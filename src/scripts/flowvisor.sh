@@ -1,17 +1,34 @@
 #!/usr/bin/env bash
 
 # Current directory
-__DIRNAME="$(dirname "$( realpath "${BASH_SOURCE[0]}" )" )"
+__DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
 # Flowvisor image
 readonly FLOWVISOR_IMAGE="flowvisor:latest"
-# Flowvisor scripts directory
-FLOWVISOR_SCRIPTS_DIR="$(readlink -m "${__DIRNAME}"/../flowvisor_scripts)"
-readonly FLOWVISOR_SCRIPTS_DIR
+# Docker volume
+ARG_VOLUME=""
 
 # Include commons
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
+
+# Analyze arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --volume)
+            ARG_VOLUME="$2"
+            shift
+            shift
+        ;;
+        --*)
+            WARN "Unknown argument '$1'" && exit 1
+        ;;
+        *)
+            ARGS+=("$1")
+            shift
+        ;;
+    esac
+done
 
 # Check Flowvisor Docker image
 if [[ "$(docker images -q ${FLOWVISOR_IMAGE} 2> /dev/null)" == "" ]]; then
@@ -21,5 +38,7 @@ if [[ "$(docker images -q ${FLOWVISOR_IMAGE} 2> /dev/null)" == "" ]]; then
 fi
 
 # Run Flowvisor container
-INFO "Run Flowvisor container"
-docker run -v "${FLOWVISOR_SCRIPTS_DIR}:/root/flowvisor_scripts" -it --rm --network host ${FLOWVISOR_IMAGE} /bin/bash
+INFO "Run Flowvisor image '${FLOWVISOR_IMAGE}'"
+DOCKER_VOLUME="$( readlink -m "${PWD}" )/${ARG_VOLUME}"
+INFO "Mounted shared volume ${DOCKER_VOLUME}"
+docker run -v "${DOCKER_VOLUME}:/root/flowvisor" -it --rm --network host ${FLOWVISOR_IMAGE} /bin/bash

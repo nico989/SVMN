@@ -6,7 +6,7 @@ LABEL maintainers="carlo.corradini@studenti.unitn.it, nicolo.vinci@studenti.unit
     name="FlowVisor" \
     version="0.0.1"
 # Working directory
-WORKDIR /root/flowvisor_scripts
+WORKDIR /root/flowvisor
 
 # --- Configuration
 ARG FLOWVISOR_PASSWORD=password
