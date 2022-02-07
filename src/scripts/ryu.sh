@@ -14,6 +14,21 @@ ARG_PORT=""
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
+# Print help message
+function print_help() {
+cat << EOF
+Usage: ryu.sh [--help] --controller CONTROLLER --ofport PORT --port PORT
+
+Ryu script.
+
+Arguments:
+  --help                   Show this help message and exit
+  --controller CONTROLLER  Ryu Python controller script
+  --ofport PORT            OpenFlow port
+  --port PORT              Listening port
+EOF
+}
+
 # Analyze arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -31,6 +46,9 @@ while [[ $# -gt 0 ]]; do
             ARG_PORT="$2"
             shift
             shift
+        ;;
+        --help)
+            print_help && exit 1;
         ;;
         --*)
             WARN "Unknown argument '$1'" && exit 1

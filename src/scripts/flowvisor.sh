@@ -12,6 +12,19 @@ ARG_VOLUME=""
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
+# Print help message
+function print_help() {
+cat << EOF
+Usage: flowvisor.sh [--help] --volume PATH
+
+Flowvisor Docker script.
+
+Arguments:
+  --help         Show this help message and exit
+  --volume PATH  Bind mount a volume located at host path
+EOF
+}
+
 # Analyze arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -19,6 +32,9 @@ while [[ $# -gt 0 ]]; do
             ARG_VOLUME="$2"
             shift
             shift
+        ;;
+        --help)
+            print_help && exit 1;
         ;;
         --*)
             WARN "Unknown argument '$1'" && exit 1
