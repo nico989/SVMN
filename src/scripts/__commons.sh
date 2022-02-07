@@ -27,17 +27,42 @@ B_LOG --log-level 500
 # FlowVisor
 # Start FlowVisor
 function fvctl_start() {
-    INFO "Starting FlowVisor service..."
-    /etc/init.d/flowvisor start
-    sleep "${FLOWVISOR_SERVICE_WAIT}"
-    INFO "FlowVisor service started"
+    if /etc/init.d/flowvisor status | grep -q "not runnning"; then
+        WARN "FlowVisor is not running"
+        INFO "Starting FlowVisor service..."
+        /etc/init.d/flowvisor start
+        sleep "${FLOWVISOR_SERVICE_WAIT}"
+        INFO "FlowVisor service started"
+    else
+        INFO "FlowVisor is running"
+    fi
 }
 # Execute FlowVisor command
 function fvctl_exec() {
     fvctl -f /etc/flowvisor/flowvisor.passwd "$@"
 }
 
-# Clean FlowVisor slice
+# Clean FlowVisor
 function fvctl_clean() {
-    fvctl_exec remove-slice "$@"
+    # Start FlowVisor
+    fvctl_start
+
+    INFO "Cleaning FlowVisor"
+
+    # Slices
+    slices="$(fvctl_exec list-slices)"
+    line_id=$((0))
+    while IFS= read -r line; do
+        # Ignore first two lines
+        if ((line_id<=1)); then ((line_id+=1)) && continue; fi
+
+        slice=$(echo "$line" | awk '{print $1;}')
+
+        INFO "Removing FlowVisor slice '${slice}'"
+        fvctl_exec remove-slice "${slice}"
+
+        ((line_id+=1))
+    done <<< "$slices"
+
+    INFO "FlowVisor cleaned"
 }

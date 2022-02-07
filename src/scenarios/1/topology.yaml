@@ -34,17 +34,18 @@ switches:
 hosts:
   - name: c0
     ip: 192.168.0.10/24
+    mac: 00:00:00:00:00:10
     image: dev_test
   - name: s0
     ip: 192.168.0.100/24
-    mac: 00:00:00:00:00:12
+    mac: 00:00:00:00:00:11
     image: dev_test
     interfaces:
       - name: s0-sw0-int
         ip: 10.0.0.100/24
   - name: s1
     ip: 192.168.0.101/24
-    mac: 00:00:00:00:00:12
+    mac: 00:00:00:00:00:11
     image: dev_test
     interfaces:
       - name: s1-sw0-int

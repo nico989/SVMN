@@ -27,6 +27,8 @@ Arguments:
   --ofport PORT            OpenFlow port
   --port PORT              Listening port
 EOF
+
+    exit 1
 }
 
 # Analyze arguments
@@ -48,7 +50,7 @@ while [[ $# -gt 0 ]]; do
             shift
         ;;
         --help)
-            print_help && exit 1;
+            print_help
         ;;
         --*)
             WARN "Unknown argument '$1'" && exit 1
