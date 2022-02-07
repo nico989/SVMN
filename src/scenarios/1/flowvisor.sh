@@ -30,8 +30,16 @@ fvctl_start
 
 # FlowVisor slices
 INFO "Creating FlowVisor slices"
-fvctl_exec add-slice --password=password slice_test tcp:localhost:10001 admin@slice_test
+fvctl_exec add-slice --password=password slice_service_migration tcp:localhost:10001 admin@slice_service_migration
+fvctl_exec add-slice --password=password slice_service_migration_int tcp:localhost:10002 admin@slice_service_migration_int
 
 # FlowVisor flowspaces
 INFO "Creating FlowVisor flowspaces"
-fvctl_exec add-flowspace dpid1 1 1 any slice_test=7
+fvctl_exec add-flowspace sw0-sw1 1 1 any slice_service_migration=7
+fvctl_exec add-flowspace c0-sw0 1 1 any slice_service_migration=7
+
+fvctl_exec add-flowspace s0-sw1 2 1 any slice_service_migration=7
+fvctl_exec add-flowspace s1-sw1 2 1 any slice_service_migration=7
+fvctl_exec add-flowspace s0-sw1-int 2 1 any slice_service_migration=7
+
+fvctl_exec add-flowspace s0-sw0-int 2 1 any slice_service_migration=7

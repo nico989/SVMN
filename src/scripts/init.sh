@@ -5,9 +5,6 @@ __DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
 # dev_host Docker image
 readonly DEV_HOST_IMAGE="dev_host:latest"
-# Ryu gui topology html directory
-RYU_GUI_TOPOLOGY_HTML_DIR="$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")/app/gui_topology/html"
-readonly RYU_GUI_TOPOLOGY_HTML_DIR
 
 # Include commons
 # shellcheck source=__commons.sh
@@ -24,13 +21,19 @@ INFO "Installing Python dependencies from 'requirements.txt'"
 sudo pip install -r "${__DIRNAME}/../requirements.txt"
 
 INFO "Checking Ryu"
+# Ryu gui topology html directory
+RYU_GUI_TOPOLOGY_HTML_DIR="$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")/app/gui_topology/html"
+readonly RYU_GUI_TOPOLOGY_HTML_DIR
 if [ ! -d "${RYU_GUI_TOPOLOGY_HTML_DIR}" ]; then
     WARN "Ryu not fixed, fixing..."
-    mkdir "${RYU_GUI_TOPOLOGY_HTML_DIR}"
-    wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/index.html
-    wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/router.svg
-    wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.css
-    wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.js
+    # Html folder
+    sudo mkdir "${RYU_GUI_TOPOLOGY_HTML_DIR}"
+    sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/index.html
+    sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/router.svg
+    sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.css
+    sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.js
+    # Python dependencies
+    sudo pip install eventlet==0.30.2
     INFO "Ryu fixed"
 else
     INFO "Ryu already fixed"
