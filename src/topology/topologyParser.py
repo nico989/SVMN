@@ -44,6 +44,7 @@ class Switch:
 class NetworkInterface:
     name: str
     ip: ipaddress.IPv4Interface
+    mac: Optional[str]
 
 
 @serde
@@ -51,7 +52,7 @@ class Host:
     name: str
     ip: ipaddress.IPv4Interface
     mac: Optional[str]
-    image: str
+    image: Optional[str]
     interfaces: List[NetworkInterface] = field(default_factory=list)
 
 

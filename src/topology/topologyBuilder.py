@@ -46,7 +46,7 @@ def buildHosts(network: Containernet, topology: Topology) -> Dict[DockerHost, Ho
         docker_args = {"hostname": host.name, "pid_mode": "host"}
         params = {
             "ip": host.ip.with_prefixlen,
-            "dimage": host.image,
+            "dimage": host.image if host.image else "dev_host:latest",
             "inNamespace": True,
             "docker_args": docker_args,
         }
@@ -87,7 +87,10 @@ def buildNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
 
         for interface in host.interfaces:
             logger.info(f" {to_json(interface)}")
+
             instance.cmd(f"ip addr add {interface.ip} dev {interface.name}")
+            if interface.mac:
+                instance.cmd(f"macchanger -m {interface.mac} {interface.name}")
 
 
 def buildTopology(topology: Topology) -> Containernet:

@@ -45,12 +45,15 @@ function sync() {
     DEBUG "Syncing '$WATCH_DIR' with destination '$DEST_DIR'"
     rsync --archive --verbose --compress --delete --human-readable --quiet "$WATCH_DIR" "$DEST_DIR"
 }
+
 # Sync directory
 INFO "Syncing directory '$WATCH_DIR'"
 sync
-# Install Python dependencies
-INFO "Installing Python dependencies from generated 'requirements.txt'"
-(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'sudo pip install -r comnetsemu/app/morphing_slices/requirements.txt') || { FATAL "Error installing Python dependencies from 'requirements.txt'"; exit 1; }
+
+# Initialize comnetsemu
+INFO "Initializing 'comnetsemu'"
+(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'sudo comnetsemu/app/morphing_slices/scripts/init.sh') || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
+
 # Watcher
 INFO "Starting watcher on '$WATCH_DIR' with destination '$DEST_DIR'";
 while inotifywait --recursive --quiet --event modify,create,delete,move "$WATCH_DIR"; do

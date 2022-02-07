@@ -125,10 +125,16 @@ scripts/prod.sh
    cd morphing_slices
    ```
 
-1. Install Python dependencies:
+1. Scripts permissions:
 
    ```bash
-   sudo pip install -r requirements.txt
+   chmod -R +x scripts
+   ```
+
+1. Initialize:
+
+   ```bash
+   sudo scripts/init.sh
    ```
 
 ## Clean

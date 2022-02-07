@@ -52,7 +52,7 @@ done
 if [[ "$(docker images -q ${FLOWVISOR_IMAGE} 2> /dev/null)" == "" ]]; then
     WARN "Docker image '${FLOWVISOR_IMAGE}' does not exists"
     INFO "Building Docker image '${FLOWVISOR_IMAGE}'"
-    docker build --rm -t ${FLOWVISOR_IMAGE} -f "${__DIRNAME}/Dockerfile.flowvisor" .
+    docker build --rm -t ${FLOWVISOR_IMAGE} -f "$( readlink -m "${__DIRNAME}/../docker/Dockerfile.flowvisor" )" .
 fi
 
 # Run Flowvisor container
