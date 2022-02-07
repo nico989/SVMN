@@ -42,3 +42,4 @@ INFO "Installing 'pre-commit'"
 INFO "=== comnetsemu ==="
 INFO "Initializing 'comnetsemu'"
 (cd "${__DIRNAME}/../comnetsemu" && vagrant up) || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
+(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'sudo comnetsemu/app/morphing_slices/scripts/init.sh') || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
