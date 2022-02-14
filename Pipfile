@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 mininet = "~=2.3.0.dev6"
-pyserde = {ref = "master", git = "https://github.com/yukinarit/pyserde.git"}
+pyserde = "~=0.7.0"
 pyyaml = "~=6.0"
 loguru = "~=0.6.0"
 ryu = "~=4.34"
