@@ -10,7 +10,8 @@ WORKDIR /app
 
 # --- Python modules
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir Flask
+    pip install --no-cache-dir Flask && \
+    pip install --no-cache-dir requests
 
 # --- Copy server
 COPY server.py server.py

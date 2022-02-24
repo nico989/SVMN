@@ -14,7 +14,7 @@ def index():
 
 
 @app.route("/api/counter")
-def counter():
+def get_counter():
     global counter
 
     return jsonify(counter)
