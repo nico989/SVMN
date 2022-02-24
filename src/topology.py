@@ -42,10 +42,9 @@ if __name__ == "__main__":
     # Topology
     logger.info(f"Analyzing topology file '{args.file}'")
     topology = getTopology(args.file)
-    network = topologyBuilder.buildTopology(topology)
+    (network, manager) = topologyBuilder.buildTopology(topology)
 
     # Network
-    manager = VNFManager(network)
     network.start()
     cli.CLI(network)
     network.stop()

@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+# --- Image
+FROM python:3.9-alpine
+LABEL maintainers="carlo.corradini@studenti.unitn.it, nicolo.vinci@studenti.unitn.it" \
+    name="Server" \
+    version="0.0.1"
+# Working directory
+WORKDIR /app
+
+# --- Python modules
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir Flask
+
+# --- Copy server
+COPY server.py server.py
+
+# --- Run
+EXPOSE 80
+CMD ["python3", "/app/server.py"]

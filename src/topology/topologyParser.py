@@ -41,6 +41,13 @@ class Switch:
 
 
 @serde
+class Container:
+    name: str
+    image: str
+    wait: Optional[bool]
+
+
+@serde
 class NetworkInterface:
     name: str
     ip: ipaddress.IPv4Interface
@@ -53,6 +60,7 @@ class Host:
     ip: ipaddress.IPv4Interface
     mac: Optional[str]
     image: Optional[str]
+    containers: List[Container] = field(default_factory=list)
     interfaces: List[NetworkInterface] = field(default_factory=list)
 
 

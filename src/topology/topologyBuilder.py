@@ -1,6 +1,6 @@
-from typing import Dict, Union
+from typing import Dict, Tuple, Union
 from comnetsemu.node import DockerHost
-from comnetsemu.net import Containernet
+from comnetsemu.net import Containernet, VNFManager
 from mininet import node, link as mnlink
 from .topologyParser import ControllerLocal, ControllerRemote, Host, Topology
 from logger import logger
@@ -93,7 +93,23 @@ def buildNetworkInterfaces(hostInstances: Dict[DockerHost, Host]) -> None:
                 instance.cmd(f"macchanger -m {interface.mac} {interface.name}")
 
 
-def buildTopology(topology: Topology) -> Containernet:
+def buildContainers(manager: VNFManager, topology: Topology) -> None:
+    for host in topology.hosts:
+        logger.info(f"Host {host.name}:")
+
+        for container in host.containers:
+            logger.info(f" {to_json(container)}")
+
+            manager.addContainer(
+                name=container.name,
+                dhost=host.name,
+                dimage=container.image,
+                dcmd="",
+                wait=container.wait if container.wait else False,
+            )
+
+
+def buildTopology(topology: Topology) -> Tuple[Containernet, VNFManager]:
     logger.info("=== NETWORK ===")
     logger.info(f"Network: {to_json(topology.network)}")
     network = Containernet(
@@ -115,4 +131,10 @@ def buildTopology(topology: Topology) -> Containernet:
     logger.info("=== NETWORK INTERFACES ===")
     buildNetworkInterfaces(hostInstances)
 
-    return network
+    # Manager
+    manager = VNFManager(network)
+
+    logger.info("=== CONTAINERS ===")
+    buildContainers(manager, topology)
+
+    return (network, manager)

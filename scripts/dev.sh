@@ -52,7 +52,7 @@ sync
 
 # Initialize comnetsemu
 INFO "Initializing 'comnetsemu'"
-(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'sudo comnetsemu/app/morphing_slices/scripts/init.sh') || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
+(cd "${__DIRNAME}/../comnetsemu" && vagrant ssh -- -t 'cd comnetsemu/app/morphing_slices && sudo scripts/init.sh') || { FATAL "Error initializing 'comnetsemu'"; exit 1; }
 
 # Watcher
 INFO "Starting watcher on '$WATCH_DIR' with destination '$DEST_DIR'";

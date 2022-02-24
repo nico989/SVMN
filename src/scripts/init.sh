@@ -5,20 +5,27 @@ __DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
 # dev_host Docker image
 readonly DEV_HOST_IMAGE="dev_host:latest"
+readonly DEV_SERVER_IMAGE="dev_server:latest"
 
 # Include commons
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
-# Check dev_host Docker image
+# Check Docker image(s)
 if [[ "$(docker images -q ${DEV_HOST_IMAGE} 2> /dev/null)" == "" ]]; then
     WARN "Docker image '${DEV_HOST_IMAGE}' does not exists"
     INFO "Building Docker image '${DEV_HOST_IMAGE}'"
     docker build --rm -t ${DEV_HOST_IMAGE} -f "$( readlink -m "${__DIRNAME}/../docker/Dockerfile.dev_host" )" .
 fi
+if [[ "$(docker images -q ${DEV_SERVER_IMAGE} 2> /dev/null)" == "" ]]; then
+    WARN "Docker image '${DEV_SERVER_IMAGE}' does not exists"
+    INFO "Building Docker image '${DEV_SERVER_IMAGE}'"
+    docker build --rm -t ${DEV_SERVER_IMAGE} -f "$( readlink -m "${__DIRNAME}/../docker/Dockerfile.dev_server" )" .
+fi
 
 INFO "Installing Python dependencies from 'requirements.txt'"
 sudo pip install -r "${__DIRNAME}/../requirements.txt"
+sudo pip install eventlet==0.30.2
 
 INFO "Checking Ryu"
 # Ryu gui topology html directory
@@ -32,8 +39,6 @@ if [ ! -d "${RYU_GUI_TOPOLOGY_HTML_DIR}" ]; then
     sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/router.svg
     sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.css
     sudo wget --quiet --show-progress -P "${RYU_GUI_TOPOLOGY_HTML_DIR}" https://raw.githubusercontent.com/faucetsdn/ryu/master/ryu/app/gui_topology/html/ryu.topology.js
-    # Python dependencies
-    sudo pip install eventlet==0.30.2
     INFO "Ryu fixed"
 else
     INFO "Ryu already fixed"

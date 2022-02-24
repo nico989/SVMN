@@ -17,7 +17,8 @@ RUN apt-get update \
     net-tools \
     tcpdump \
     macchanger \
-    traceroute
+    traceroute \
+    curl
 
 # --- CLEAN
 RUN apt-get clean
