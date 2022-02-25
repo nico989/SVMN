@@ -104,7 +104,7 @@ def buildContainers(manager: VNFManager, topology: Topology) -> None:
                 name=container.name,
                 dhost=host.name,
                 dimage=container.image,
-                dcmd="",
+                dcmd=container.cmd if container.cmd else "",
                 wait=container.wait if container.wait else False,
             )
 

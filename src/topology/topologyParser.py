@@ -44,6 +44,7 @@ class Switch:
 class Container:
     name: str
     image: str
+    cmd: Optional[str]
     wait: Optional[bool]
 
 

@@ -35,7 +35,7 @@ if __name__ == "__main__":
         formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=40),
     )
     parser.add_argument(
-        "-f", "--file", help="Topology file", required=True, action="store", type=str
+        "--file", help="Topology file", required=True, action="store", type=str
     )
     args = parser.parse_args()
 

@@ -7,7 +7,7 @@ readonly __THIS_DIRNAME
 UTILS_DIR="$(readlink -m "${__THIS_DIRNAME}"/utils)"
 readonly UTILS_DIR
 # Time to wait for FlowVisor service
-readonly FLOWVISOR_SERVICE_WAIT=5
+readonly FLOWVISOR_SERVICE_WAIT=8
 
 # Fail on error
 set -o errexit
