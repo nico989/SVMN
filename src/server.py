@@ -1,33 +1,58 @@
-from flask import Flask, request, jsonify
+from crypt import methods
 import requests
+from flask import Flask, request, jsonify
 
+# Config
+APP_HOST = "0.0.0.0"
+APP_PORT = 8080
+
+# Flask app(s)
 app = Flask(__name__)
+
+# Counter
 counter = 0
 
+# APP
+@app.route("/api/counter", methods=["GET"])
+def get_counter():
+    """
+    Return counter.
+    """
 
-@app.route("/")
-def index():
     global counter
+    return jsonify(counter)
 
+
+@app.route("/api/counter", methods=["POST"])
+def post_counter():
+    """
+    Increment and return counter.
+    """
+
+    global counter
     counter += 1
     return jsonify(counter)
 
 
-@app.route("/api/counter")
-def get_counter():
-    global counter
-
-    return jsonify(counter)
-
-
+# APPMGR
 @app.route("/api/migrate", methods=["POST"])
 def migrate():
+    """
+    Migrate service and return counter.
+    """
+
     global counter
 
+    # Request body
     body = request.get_json(force=True)
-    response = requests.get(f"{body.server}/api/counter").json()
+    # Server
+    server = body.server
+    # Obtain counter value
+    response = requests.get(f"{server}/api/counter").json()
+    # Set counter value
     counter = response.counter
-    requests.get(f"{body.server}/api/stop")
+    # Stop server
+    requests.get(f"{server}/api/stop")
 
     return jsonify(counter)
 
@@ -38,4 +63,4 @@ def stop():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=80)
+    app.run(debug=True, host=APP_HOST, port=APP_PORT)

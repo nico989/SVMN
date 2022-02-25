@@ -8,13 +8,14 @@ LABEL maintainers="carlo.corradini@studenti.unitn.it, nicolo.vinci@studenti.unit
 # Working directory
 WORKDIR /app
 
-# --- Python modules
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir Flask && \
-    pip install --no-cache-dir requests
-
-# --- Copy server
+# --- Copy
 COPY server.py server.py
+
+# --- Python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    Flask \
+    requests
 
 # --- Run
 EXPOSE 80
