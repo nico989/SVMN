@@ -90,15 +90,19 @@ class SimpleSwitch(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):
         msg = ev.msg
+        datapath = msg.datapath
         reason = msg.reason
         port_no = msg.desc.port_no
-        ofproto = msg.datapath.ofproto
+        ofproto = datapath.ofproto
+        dpid = datapath.id
 
         if reason == ofproto.OFPPR_ADD:
-            self.logger.info(f"Port added: {port_no}")
+            self.logger.info(f"Port added in dpid {dpid}: {port_no}")
         elif reason == ofproto.OFPPR_DELETE:
-            self.logger.info(f"Port deleted: {port_no}")
+            self.logger.info(f"Port deleted in dpid {dpid}: {port_no}")
         elif reason == ofproto.OFPPR_MODIFY:
-            self.logger.info(f"Port modified: {port_no}")
+            self.logger.info(f"Port modified in dpid {dpid}: {port_no}")
         else:
-            self.logger.warning(f"Illeagal port state '{reason}': {port_no}")
+            self.logger.warning(
+                f"Illeagal port state in dpid {dpid}: {{ reason: {reason}, port_no: {port_no} }}"
+            )

@@ -11,6 +11,12 @@ readonly DEV_SERVER_IMAGE="dev_server:latest"
 # shellcheck source=__commons.sh
 source "${__DIRNAME}/__commons.sh"
 
+# Packages
+INFO "Installing packages"
+sudo apt-get update \
+&& sudo apt-get install -y \
+parallel
+
 # Check Docker image(s)
 if [[ "$(docker images -q ${DEV_HOST_IMAGE} 2> /dev/null)" == "" ]]; then
     WARN "Docker image '${DEV_HOST_IMAGE}' does not exists"

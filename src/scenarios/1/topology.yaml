@@ -26,13 +26,13 @@ switches:
       - node: s0
         bandwidth: 1000
         delay: 1ms
-        fromInterface: sw1-s0-int
-        toInterface: s0-sw1-int
+        fromInterface: sw1-s0-admin
+        toInterface: s0-sw1-admin
       - node: s1
         bandwidth: 1000
         delay: 1ms
-        fromInterface: sw1-s1-int
-        toInterface: s1-sw1-int
+        fromInterface: sw1-s1-admin
+        toInterface: s1-sw1-admin
 
 hosts:
   - name: m0
@@ -48,7 +48,7 @@ hosts:
         cmd: "--host 0.0.0.0 --port 80 --enable"
         wait: true
     interfaces:
-      - name: s0-sw1-int
+      - name: s0-sw1-admin
         ip: 10.0.0.100/24
         mac: 00:00:00:00:0A:64
   - name: s1
@@ -60,6 +60,6 @@ hosts:
         cmd: "--host 0.0.0.0 --port 80"
         wait: true
     interfaces:
-      - name: s1-sw1-int
+      - name: s1-sw1-admin
         ip: 10.0.0.101/24
         mac: 00:00:00:00:0A:65

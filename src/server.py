@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import requests, argparse, re
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify
+
+# Vars
+counter = 0
+enable = False
 
 # Flask app(s)
 app = Flask(__name__)
-
-# Counter
-counter = 0
-enable = False
 
 
 @app.before_request
