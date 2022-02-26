@@ -138,3 +138,16 @@ def buildTopology(topology: Topology) -> Tuple[Containernet, VNFManager]:
     buildContainers(manager, topology)
 
     return (network, manager)
+
+
+def cleanToplogy(
+    topology: Topology, network: Containernet, manager: VNFManager
+) -> None:
+    logger.info("=== CLEANING ===")
+    # Container
+    for host in topology.hosts:
+        for container in host.containers:
+            logger.info(f"Container: {container.name}")
+            manager.removeContainer(container.name, True)
+    # Stop network
+    network.stop()
