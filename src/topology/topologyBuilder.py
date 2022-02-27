@@ -151,3 +151,4 @@ def cleanToplogy(
             manager.removeContainer(container.name, True)
     # Stop network
     network.stop()
+    manager.stop()
