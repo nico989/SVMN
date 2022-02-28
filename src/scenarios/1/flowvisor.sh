@@ -53,7 +53,7 @@ fvctl_exec add-flowspace dpid1-c0 1 1 in_port=1 slice_service_migration=7
 fvctl_exec add-flowspace dpid1-s 1 1 in_port="${PORTS[IDX_PORT]}" slice_service_migration=7
 
 # Migration loop
-while read -n1 -r -p "Press 'Enter' to migrate flows or 'q' to exit" && [[ $REPLY != q ]]; do
+while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
     # Old port
     OLD_PORT=${PORTS[IDX_PORT]}
     # Update data port

@@ -156,8 +156,52 @@ scripts/clean.sh
 1. Create network topology:
 
    ```bash
-   sudo python3 topology.py -f scenarios/1/topology.yaml
+   sudo python3 topology.py --file scenarios/1/topology.yaml
    ```
+
+1. Wait `Terminal 2.2`.
+
+1. Increment the counter:
+
+   > Make as many requests as you want
+
+   ```bash
+   c0 curl -X POST 192.168.0.100/api/counter
+   ```
+
+1. Migrate service from `s0` to `s1`:
+
+   > Note that we are using the manager `m0`
+
+   ```bash
+   m0 curl -X POST 10.0.0.101/api/admin/migrate -H "Content-Type: application/json" -d '{ "server": "http://10.0.0.100" }'
+   ```
+
+1. Wait `Terminal 2.4`.
+
+1. Increment the counter:
+
+   ```bash
+   c0 curl -X POST 192.168.0.100/api/counter
+   ```
+
+1. Migrate service from `s1` to `s0`:
+
+   > Note that we are using the manager `m0`
+
+   ```bash
+   m0 curl -X POST 10.0.0.100/api/admin/migrate -H "Content-Type: application/json" -d '{ "server": "http://10.0.0.101" }'
+   ```
+
+1. Wait `Terminal 2.4`.
+
+1. Increment the counter:
+
+   ```bash
+   c0 curl -X POST 192.168.0.100/api/counter
+   ```
+
+1. Repeat from point `4` or `7` as many times as you want.
 
 ### Terminal 2
 
@@ -173,15 +217,39 @@ scripts/clean.sh
    ./flowvisor.sh
    ```
 
-### Terminal 3
+1. Wait `Terminal 1.4`.
 
-1. Start Ryu controller:
+1. Migrate flow from port `2` to port `3`:
+
+   > Press `Enter`
 
    ```bash
-   scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082
+   Press 'Enter' to migrate or 'q' to exit
+   ...
+   ```
+
+1. Wait `Terminal 1.7`.
+
+1. Migrate flow from port `3` to port `2`:
+
+   > Press `Enter`
+
+   ```bash
+   Press 'Enter' to migrate or 'q' to exit
+   ...
+   ```
+
+### Terminal 3
+
+1. Start Ryu controller(s):
+
+   ```bash
+   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
    ```
 
 1. Open browser at <http://localhost:8082>
+
+1. Open browser at <http://localhost:8083>
 
 ## License
 
