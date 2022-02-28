@@ -7,7 +7,7 @@ readonly __THIS_DIRNAME
 UTILS_DIR="$(readlink -m "${__THIS_DIRNAME}"/utils)"
 readonly UTILS_DIR
 # Time to wait for FlowVisor service
-readonly FLOWVISOR_SERVICE_WAIT=8
+readonly FLOWVISOR_SERVICE_WAIT=3
 
 # Fail on error
 set -o errexit
@@ -27,14 +27,24 @@ B_LOG --log-level 500
 # FlowVisor
 # Start FlowVisor
 function fvctl_start() {
-    if /etc/init.d/flowvisor status | grep -q "not runnning"; then
-        WARN "FlowVisor is not running"
+    if [[ "$(/etc/init.d/flowvisor status)" == *"is not runnning"* ]]; then
         INFO "Starting FlowVisor service..."
         /etc/init.d/flowvisor start
         sleep "${FLOWVISOR_SERVICE_WAIT}"
         INFO "FlowVisor service started"
     else
-        INFO "FlowVisor is running"
+        WARN "FlowVisor is already started"
+    fi
+}
+# Stop FlowVisor
+function fvctl_stop() {
+    if [[ "$(/etc/init.d/flowvisor status)" == *"is running"* ]]; then
+        INFO "Stopping FlowVisor service..."
+        /etc/init.d/flowvisor stop
+        sleep "${FLOWVISOR_SERVICE_WAIT}"
+        INFO "FlowVisor service stopped"
+    else
+        WARN "FlowVisor is already stopped"
     fi
 }
 # Execute FlowVisor command
