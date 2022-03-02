@@ -44,7 +44,7 @@ hosts:
     mac: 00:00:00:00:C0:64
     containers:
       - name: server0
-        image: dev_server
+        image: dev_server:latest
         cmd: "--host 0.0.0.0 --port 80 --enable"
         wait: true
     interfaces:
@@ -56,7 +56,7 @@ hosts:
     mac: 00:00:00:00:C0:64
     containers:
       - name: server1
-        image: dev_server
+        image: dev_server:latest
         cmd: "--host 0.0.0.0 --port 80"
         wait: true
     interfaces:

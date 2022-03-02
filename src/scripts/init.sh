@@ -31,7 +31,7 @@ fi
 
 INFO "Installing Python dependencies from 'requirements.txt'"
 sudo pip install -r "${__DIRNAME}/../requirements.txt"
-sudo pip install eventlet==0.30.2
+sudo pip install eventlet==0.30.2 Flask==2.0.3
 
 INFO "Checking Ryu"
 # Ryu gui topology html directory

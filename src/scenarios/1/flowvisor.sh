@@ -3,14 +3,20 @@
 # Current directory
 __DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
-# Data port(s)
-readonly PORTS=(2 3)
-# Current data port
-IDX_PORT=0
+# Servers
+readonly SERVERS_IP=("10.0.0.100" "10.0.0.101")
+readonly SERVERS_PORT=(2 3)
+# Current server
+IDX_SERVER=0
 
 # Include commons
 # shellcheck source=../../scripts/__commons.sh
 source "${__DIRNAME}/../scripts/__commons.sh"
+
+# Assert(s)
+if [ ${#SERVERS_IP[@]} -ne ${#SERVERS_PORT[@]} ]; then
+    FATAL "Size of 'SERVERS_*' must be equal" && exit 1
+fi
 
 # Analyze arguments
 while [[ $# -gt 0 ]]; do
@@ -29,9 +35,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Calculate next idx port
-function next_idx_port() {
-    echo $((($1+1)%${#PORTS[@]}))
+# Calculate next idxserver
+function next_idx_server() {
+    echo $((($1+1)%${#SERVERS_IP[@]}))
 }
 
 # Start FlowVisor
@@ -50,18 +56,25 @@ fvctl_exec add-slice --password=password slice_service_migration tcp:localhost:1
 # Flowvisor data flow
 INFO "Creating FlowVisor data flow"
 fvctl_exec add-flowspace dpid1-c0 1 1 in_port=1 slice_service_migration=7
-fvctl_exec add-flowspace dpid1-s 1 1 in_port="${PORTS[IDX_PORT]}" slice_service_migration=7
+fvctl_exec add-flowspace dpid1-s 1 1 in_port="${SERVERS_PORT[IDX_SERVER]}" slice_service_migration=7
 
 # Migration loop
 while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
+    # Old ip
+    OLD_IP=${SERVERS_IP[IDX_SERVER]}
     # Old port
-    OLD_PORT=${PORTS[IDX_PORT]}
-    # Update data port
-    IDX_PORT="$(next_idx_port "$IDX_PORT")"
+    OLD_PORT=${SERVERS_PORT[IDX_SERVER]}
+    # Update idx server
+    IDX_SERVER="$(next_idx_server "$IDX_SERVER")"
+    # New ip
+    NEW_IP=${SERVERS_IP[IDX_SERVER]}
     # New port
-    NEW_PORT=${PORTS[IDX_PORT]}
+    NEW_PORT=${SERVERS_PORT[IDX_SERVER]}
 
-    INFO "Migrating from port $OLD_PORT to port $NEW_PORT"
+    INFO "Migrating from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
+
+    # Server Docker
+    curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
 
     # FlowVisor
     fvctl_exec remove-flowspace dpid1-s
@@ -70,7 +83,7 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     fvctl_start
     fvctl_exec add-flowspace dpid1-s 1 1 in_port="$NEW_PORT" slice_service_migration=7
 
-    INFO "Successfully migrated from port $OLD_PORT to port $NEW_PORT"
+    INFO "Successfully migrated from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 done
 
 # Exit

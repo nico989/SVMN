@@ -18,7 +18,7 @@ COPY scripts/utils /root/scripts/utils
 # --- Packages
 RUN apt-get update \
     && apt-get install -y \
-    wget gnupg2 coreutils
+    wget curl gnupg2 coreutils
 
 # --- FlowVisor
 # GPG key
