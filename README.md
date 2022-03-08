@@ -210,6 +210,47 @@ scripts/clean.sh
 
 1. Open browser at <http://localhost:8083>
 
+## Scenario 2
+
+> All commands must be executed inside `comnetsemu`
+
+### Terminal 1
+
+1. Create network topology:
+
+   ```bash
+   sudo python3 topology.py --file scenarios/2/topology.yaml
+   ```
+
+1. Wait `Terminal 2.1`.
+
+1. Increment the counter:
+
+   > Make as many requests as you want
+
+   ```bash
+   c0 curl -X POST 192.168.0.100/api/counter
+   ```
+
+### Terminal 2
+
+1. Run OpenFlow:
+
+   ```bash
+   scenarios/2/openflow.sh
+   ```
+
+1. Migrate:
+
+   > Press `Enter`
+
+   > Make as many migrations as you want
+
+   ```bash
+   Press 'Enter' to migrate or 'q' to exit
+   ...
+   ```
+
 ## License
 
 This project is licensed under the MIT License.
