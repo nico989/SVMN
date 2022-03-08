@@ -6,6 +6,7 @@ readonly __DIRNAME
 # Servers
 readonly SERVERS_IP=("10.0.0.100" "10.0.0.101")
 readonly SERVERS_PORT=(2 3)
+readonly SERVER_MAC="00:00:00:00:c0:64"
 # Current server
 IDX_SERVER=0
 
@@ -76,9 +77,11 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     # Server Docker
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
 
+    # Controller flow
+    curl -X POST -H \"Content-Type:application/json\" -d "{ \"dpid\": \"1\", \"mac\": \"$SERVER_MAC\", \"port\": \"$NEW_PORT\" }" localhost:9876/api/migrate
+
     # FlowVisor
     fvctl_exec remove-flowspace dpid1-s
-    sleep 3
     fvctl_stop
     fvctl_start
     fvctl_exec add-flowspace dpid1-s 1 1 in_port="$NEW_PORT" slice_service_migration=7

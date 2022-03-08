@@ -203,7 +203,7 @@ scripts/clean.sh
 1. Start Ryu controller(s):
 
    ```bash
-   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
+   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
    ```
 
 1. Open browser at <http://localhost:8082>

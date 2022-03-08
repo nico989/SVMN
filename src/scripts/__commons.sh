@@ -76,3 +76,8 @@ function fvctl_clean() {
 
     INFO "FlowVisor cleaned"
 }
+
+# Execute OpenFlow command
+function ofctl_exec() {
+    sudo ovs-ofctl "$@"
+}
