@@ -5,7 +5,6 @@ import os
 from logger import logger
 from topology import topologyBuilder, topologyParser
 from mininet import cli
-from comnetsemu.net import VNFManager
 
 
 def fileFormat(file: str) -> topologyParser.Format:
