@@ -73,9 +73,7 @@ done
 # Ryu Manager
 INFO "Running ryu: { controller: $ARG_CONTROLLER, ofport: $ARG_OFPORT, port: $ARG_PORT, config: $ARG_CONFIG }"
 ryu_cmd=(ryu-manager --observe-links --ofp-tcp-listen-port "${ARG_OFPORT}" --wsapi-port "${ARG_PORT}")
-if [ -n "$ARG_CONFIG" ] && [ "$ARG_CONFIG" != " " ]; then
-    ryu_cmd+=("--config-file=\"$ARG_CONFIG\"")
-fi
+if [ -n "$ARG_CONFIG" ] && [ "$ARG_CONFIG" != " " ]; then ryu_cmd+=(--config-file "$ARG_CONFIG"); fi
 ryu_cmd+=("$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")/app/gui_topology/gui_topology.py") \
 ryu_cmd+=("${ARG_CONTROLLER}")
 "${ryu_cmd[@]}"
