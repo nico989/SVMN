@@ -149,7 +149,9 @@ scripts/clean.sh
 
 ## Scenario 1
 
-> All commands must be executed inside `comnetsemu`
+![Scenario 1](assets/scenario_1.png)
+
+TODO Aggiungere descrizione scenario
 
 ### Terminal 1
 
@@ -211,8 +213,6 @@ scripts/clean.sh
 1. Open browser at <http://localhost:8083>
 
 ## Scenario 2
-
-> All commands must be executed inside `comnetsemu`
 
 ### Terminal 1
 

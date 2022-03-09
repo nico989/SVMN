@@ -14,7 +14,6 @@ repos:
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 2.1.5
     hooks:
-      - id: forbid-binary
       - id: script-must-have-extension
       - id: markdownlint
       - id: shellcheck
