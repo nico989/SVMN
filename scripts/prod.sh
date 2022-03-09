@@ -24,11 +24,15 @@ assert_tool tar
 # Files
 INFO "=== Sources ==="
 # Copy sources to build directory
-INFO "Copying sources from ${SRC_DIR} to ${TMP_DIR}"
-cp -a "${SRC_DIR}/." "${TMP_DIR}/"
+INFO "Copying sources from $SRC_DIR to $TMP_DIR"
+cp -a "$SRC_DIR/." "$TMP_DIR/"
 # Generate requirements.txt
 INFO "Generating 'requirements.txt' from 'pipenv'"
-pipenv lock -r > "${TMP_DIR}/requirements.txt"
+pipenv lock -r > "$TMP_DIR/requirements.txt"
+# README & assets
+INFO "Copying README and assets"
+cp README.md "$TMP_DIR/"
+cp -R assets "$TMP_DIR/"
 
 # tar|gz file
 INFO "=== ${TAR_GZ_NAME} ==="
