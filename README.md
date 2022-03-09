@@ -151,7 +151,7 @@ scripts/clean.sh
 
 ![Scenario 1](assets/scenario_1.png)
 
-TODO Aggiungere descrizione scenario
+TODO Aggiungere descrizione scenario 1
 
 ### Terminal 1
 
@@ -213,6 +213,10 @@ TODO Aggiungere descrizione scenario
 1. Open browser at <http://localhost:8083>
 
 ## Scenario 2
+
+![Scenario 2](assets/scenario_2.png)
+
+TODO Aggiungere descrizione scenario 2
 
 ### Terminal 1
 
