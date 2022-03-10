@@ -147,11 +147,33 @@ Ensure to clean old works in `comnetsemu`.
 scripts/clean.sh
 ```
 
+## Abstract
+
+The project implements a stateful and transparent migration service. <br />
+In the following scenarios there are two servers which implement the same Flask
+application.Only one of them is active and the other is unavailable.
+The active one increments a counter each time a user performs
+an HTTP post request to the API */api/counter*. <br />
+The migration is stateful, because the active server
+passes the counter to the disabled server when it becomes available.
+So, the counter value is kept during the migration.
+The manager m0 is in charge of disabling the active server and enabling
+the new one by passing the counter value to it. <br />
+Moreover, the migration is transparent from the client c0 point of view,
+because the two servers have the same IP and MAC address.
+It is enough to update the flow to redirect the client to the new active server.
+Hence, the client c0 is not aware whether it is making an HTTP request
+to the server s0 or s1.
+
 ## Scenario 1
 
 ![Scenario 1](assets/scenario_1.png)
 
-TODO Aggiungere descrizione scenario 1
+In the scenario 1, the migration is handled by FlowVisor and the controller 0
+which manages the switch sw0 in the data side. Instead, the controller 1
+manages the switch sw1 in the admin side. <br />
+After an user input, the manager m0 migrates the active server and FlowVisor
+redirects the client c0 to the new available server creating a new flow.
 
 ### Terminal 1
 
@@ -204,7 +226,9 @@ TODO Aggiungere descrizione scenario 1
 1. Start Ryu controller(s):
 
    ```bash
-   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
+   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py
+   --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh
+   --controller scenarios/1/controller.py --ofport 10002 --port 8083'
    ```
 
 1. Open browser at <http://localhost:8082>
@@ -215,7 +239,11 @@ TODO Aggiungere descrizione scenario 1
 
 ![Scenario 2](assets/scenario_2.png)
 
-TODO Aggiungere descrizione scenario 2
+In the scenario 2, the migration is handled directly by ovs-ofctl which
+defines flows for both data and admin. <br />
+After an user input, the manager m0 migrates the active server to the new
+one and ovs-ofctl redirects the client c0 to the new available server
+updating the correspondent flow.
 
 ### Terminal 1
 
