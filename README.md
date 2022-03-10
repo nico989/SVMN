@@ -153,7 +153,7 @@ The project implements a stateful and transparent migration service.
 In the following scenarios there are two servers which implement the same Flask
 application.Only one of them is active and the other is unavailable.
 The active one increments a counter each time a user performs
-an HTTP post request to the API */api/counter*.
+an HTTP post request to the API _/api/counter_.
 The migration is stateful, because the active server
 passes the counter to the disabled server when it becomes available.
 So, the counter value is kept during the migration.
