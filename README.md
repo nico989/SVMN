@@ -149,16 +149,16 @@ scripts/clean.sh
 
 ## Abstract
 
-The project implements a stateful and transparent migration service. <br />
+The project implements a stateful and transparent migration service.
 In the following scenarios there are two servers which implement the same Flask
 application.Only one of them is active and the other is unavailable.
 The active one increments a counter each time a user performs
-an HTTP post request to the API */api/counter*. <br />
+an HTTP post request to the API */api/counter*.
 The migration is stateful, because the active server
 passes the counter to the disabled server when it becomes available.
 So, the counter value is kept during the migration.
 The manager m0 is in charge of disabling the active server and enabling
-the new one by passing the counter value to it. <br />
+the new one by passing the counter value to it.
 Moreover, the migration is transparent from the client c0 point of view,
 because the two servers have the same IP and MAC address.
 It is enough to update the flow to redirect the client to the new active server.
@@ -171,7 +171,7 @@ to the server s0 or s1.
 
 In the scenario 1, the migration is handled by FlowVisor and the controller 0
 which manages the switch sw0 in the data side. Instead, the controller 1
-manages the switch sw1 in the admin side. <br />
+manages the switch sw1 in the admin side.
 After an user input, the manager m0 migrates the active server and FlowVisor
 redirects the client c0 to the new available server creating a new flow.
 
@@ -213,8 +213,6 @@ redirects the client c0 to the new available server creating a new flow.
 
 1. Migrate:
 
-   > Press `Enter`
-
    > Make as many migrations as you want
 
    ```bash
@@ -226,9 +224,7 @@ redirects the client c0 to the new available server creating a new flow.
 1. Start Ryu controller(s):
 
    ```bash
-   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py
-   --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh
-   --controller scenarios/1/controller.py --ofport 10002 --port 8083'
+   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
    ```
 
 1. Open browser at <http://localhost:8082>
@@ -240,7 +236,7 @@ redirects the client c0 to the new available server creating a new flow.
 ![Scenario 2](assets/scenario_2.png)
 
 In the scenario 2, the migration is handled directly by ovs-ofctl which
-defines flows for both data and admin. <br />
+defines flows for both data and admin.
 After an user input, the manager m0 migrates the active server to the new
 one and ovs-ofctl redirects the client c0 to the new available server
 updating the correspondent flow.
@@ -272,8 +268,6 @@ updating the correspondent flow.
    ```
 
 1. Migrate:
-
-   > Press `Enter`
 
    > Make as many migrations as you want
 
