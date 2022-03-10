@@ -197,7 +197,6 @@ TODO Aggiungere descrizione scenario 1
 
    ```bash
    Press 'Enter' to migrate or 'q' to exit
-   ...
    ```
 
 ### Terminal 3
@@ -252,7 +251,6 @@ TODO Aggiungere descrizione scenario 2
 
    ```bash
    Press 'Enter' to migrate or 'q' to exit
-   ...
    ```
 
 ## License
