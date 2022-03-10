@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Calculate next idxserver
+# Calculate next idx server
 function next_idx_server() {
     echo $((($1+1)%${#SERVERS_IP[@]}))
 }

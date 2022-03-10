@@ -18,7 +18,7 @@ if [ ${#SERVERS_IP[@]} -ne ${#SERVERS_PORT[@]} ]; then
     FATAL "Size of 'SERVERS_*' must be equal" && exit 1
 fi
 
-# Calculate next idx server
+# Calculate next idxserver
 function next_idx_server() {
     echo $((($1+1)%${#SERVERS_IP[@]}))
 }
