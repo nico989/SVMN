@@ -140,7 +140,7 @@ def buildTopology(topology: Topology) -> Tuple[Containernet, VNFManager]:
     return (network, manager)
 
 
-def cleanToplogy(
+def cleanTopology(
     topology: Topology, network: Containernet, manager: VNFManager
 ) -> None:
     logger.info("=== CLEANING ===")

@@ -46,4 +46,4 @@ if __name__ == "__main__":
     # Network
     network.start()
     cli.CLI(network)
-    topologyBuilder.cleanToplogy(topology, network, manager)
+    topologyBuilder.cleanTopology(topology, network, manager)
