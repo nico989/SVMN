@@ -41,7 +41,6 @@ class MorphingSlices(app_manager.RyuApp):
         msg = ev.msg
         datapath = msg.datapath
         ofproto = datapath.ofproto
-
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
@@ -49,18 +48,19 @@ class MorphingSlices(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             return
 
-        dst = eth.dst
         src = eth.src
-
+        dst = eth.dst
         dpid = datapath.id
+
         self.mac_to_port.setdefault(dpid, {})
         # Learn mac address
         self.mac_to_port[dpid][src] = msg.in_port
 
         self.logger.info(
-            f"Packet in dpid {dpid}: {{ src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
+            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
         )
 
+        # Find out_port
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
         else:
@@ -86,18 +86,17 @@ class MorphingSlices(app_manager.RyuApp):
     def _port_status_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
-        reason = msg.reason
-        port_no = msg.desc.port_no
         ofproto = datapath.ofproto
-        dpid = datapath.id
 
-        if reason == ofproto.OFPPR_ADD:
-            self.logger.info(f"Port added in dpid {dpid}: {port_no}")
-        elif reason == ofproto.OFPPR_DELETE:
-            self.logger.info(f"Port deleted in dpid {dpid}: {port_no}")
-        elif reason == ofproto.OFPPR_MODIFY:
-            self.logger.info(f"Port modified in dpid {dpid}: {port_no}")
+        if msg.reason == ofproto.OFPPR_ADD:
+            reason = "ADD"
+        elif msg.reason == ofproto.OFPPR_DELETE:
+            reason = "DELETE"
+        elif msg.reason == ofproto.OFPPR_MODIFY:
+            reason = "MODIFY"
         else:
-            self.logger.warning(
-                f"Illeagal port state in dpid {dpid}: {{ reason: {reason}, port_no: {port_no} }}"
-            )
+            reason = "UNKNOWN"
+
+        self.logger.info(
+            f"OFPPortStatus: {{ dpid: {datapath.id}, port: {msg.desc.port_no}, reason: {reason} }}"
+        )

@@ -42,7 +42,6 @@ class MorphingSlices(app_manager.RyuApp):
     def _packet_in_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
-
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
@@ -50,16 +49,15 @@ class MorphingSlices(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             return
 
-        dst = eth.dst
         src = eth.src
-
+        dst = eth.dst
         dpid = datapath.id
 
         self.logger.info(
-            f"Packet in dpid {dpid}: {{ src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
+            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
         )
-        out_port = self.slice_to_port[dpid][msg.in_port]
 
+        out_port = self.slice_to_port[dpid][msg.in_port]
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
         match = datapath.ofproto_parser.OFPMatch(in_port=msg.in_port)
         self.logger.info(
@@ -73,31 +71,27 @@ class MorphingSlices(app_manager.RyuApp):
     def _port_status_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
-        reason = msg.reason
-        port_no = msg.desc.port_no
         ofproto = datapath.ofproto
-        dpid = datapath.id
 
-        if reason == ofproto.OFPPR_ADD:
-            self.logger.info(f"Port added in dpid {dpid}: {port_no}")
-        elif reason == ofproto.OFPPR_DELETE:
-            self.logger.info(f"Port deleted in dpid {dpid}: {port_no}")
-        elif reason == ofproto.OFPPR_MODIFY:
-            self.logger.info(f"Port modified in dpid {dpid}: {port_no}")
+        if msg.reason == ofproto.OFPPR_ADD:
+            reason = "ADD"
+        elif msg.reason == ofproto.OFPPR_DELETE:
+            reason = "DELETE"
+        elif msg.reason == ofproto.OFPPR_MODIFY:
+            reason = "MODIFY"
         else:
-            self.logger.warning(
-                f"Illeagal port state in dpid {dpid}: {{ reason: {reason}, port_no: {port_no} }}"
-            )
+            reason = "UNKNOWN"
+
+        self.logger.info(
+            f"OFPPortStatus: {{ dpid: {datapath.id}, port: {msg.desc.port_no}, reason: {reason} }}"
+        )
 
     def add_flow(self, datapath, priority, match, actions):
         # Construct flow mod
         mod = datapath.ofproto_parser.OFPFlowMod(
             datapath=datapath,
             match=match,
-            cookie=0,
             command=datapath.ofproto.OFPFC_ADD,
-            idle_timeout=20,
-            hard_timeout=120,
             priority=priority,
             flags=datapath.ofproto.OFPFF_SEND_FLOW_REM,
             actions=actions,
