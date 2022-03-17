@@ -151,7 +151,7 @@ scripts/clean.sh
 
 The project implements a stateful and transparent migration service.
 In the following scenarios there are two servers which implement the same Flask
-application.Only one of them is active and the other is unavailable.
+application. Only one of them is active and the other is unavailable.
 The active one increments a counter each time a user performs
 an HTTP post request to the API _/api/counter_.
 The migration is stateful, because the active server
@@ -172,7 +172,7 @@ to the server s0 or s1.
 In the scenario 1, the migration is handled by FlowVisor and the controller 0
 which manages the switch sw0 in the data side. Instead, the controller 1
 manages the switch sw1 in the admin side.
-After an user input, the manager m0 migrates the active server and FlowVisor
+After a user input, the manager m0 migrates the active server and FlowVisor
 redirects the client c0 to the new available server creating a new flow.
 
 ### Terminal 1
@@ -237,7 +237,7 @@ redirects the client c0 to the new available server creating a new flow.
 
 In the scenario 2, the migration is handled directly by ovs-ofctl which
 defines flows for both data and admin.
-After an user input, the manager m0 migrates the active server to the new
+After a user input, the manager m0 migrates the active server to the new
 one and ovs-ofctl redirects the client c0 to the new available server
 updating the correspondent flow.
 
