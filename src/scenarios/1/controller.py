@@ -1,8 +1,10 @@
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.topology import event
+from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER, DEAD_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
+from ryu.controller.controller import Datapath
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
@@ -11,7 +13,6 @@ import migrator
 import threading
 
 
-# FIXME Cambia con un controller decente pls
 class Controller(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
@@ -25,6 +26,7 @@ class Controller(app_manager.RyuApp):
         )
 
         self.mac_to_port = {}
+
         if CONF.port:
             migrator_port = int(CONF.port)
             self.thread_migration = threading.Thread(
@@ -40,13 +42,39 @@ class Controller(app_manager.RyuApp):
     def migration_cb(self, dpid: int, mac: str, port: int):
         self.mac_to_port[dpid][mac] = port
 
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def _switch_features_handler(self, ev):
+        msg = ev.msg
+
+        s = f"OFPSwitchFeatures: {{ dpid: {msg.datapath_id}, buffers: {msg.n_buffers}, tables: {msg.n_tables}, capabilities: {msg.capabilities}, ports: ["
+        for index, port in enumerate(msg.ports.values()):
+            s += f"{{ port: {port.port_no}, name: {port.name.decode('UTF-8')}, hw_addr: {port.hw_addr} }}"
+            if index != len(msg.ports) - 1:
+                s += ", "
+        s += f"] }}"
+
+        self.logger.info(s)
+
+    @set_ev_cls(event.EventSwitchEnter)
+    def _switch_enter_handler(self, ev):
+        self.logger.info(f"SwitchEnter: {{ dpid: {ev.switch.dp.id} }}")
+
+    @set_ev_cls(
+        event.EventSwitchLeave, [MAIN_DISPATCHER, CONFIG_DISPATCHER, DEAD_DISPATCHER]
+    )
+    def _switch_leave_handler(self, ev):
+        self.logger.info(f"SwitchLeave: {{ dpid: {ev.switch.dp.id} }}")
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
         ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+        in_port = msg.in_port
+
         pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocol(ethernet.ethernet)
+        eth = pkt.get_protocols(ethernet.ethernet)[0]
 
         # Ignore LLDP packet
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
@@ -56,13 +84,17 @@ class Controller(app_manager.RyuApp):
         dst = eth.dst
         dpid = datapath.id
 
-        self.mac_to_port.setdefault(dpid, {})
-        # Learn mac address
-        self.mac_to_port[dpid][src] = msg.in_port
-
         self.logger.info(
-            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
+            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {in_port} }}"
         )
+        if msg.msg_len < msg.total_len:
+            self.logger.warn(
+                f"OFPPacketIn packet truncated: {{ dpid: {dpid}, msg_len: {msg.msg_len}, total_len: {msg.total_len} }}"
+            )
+
+        # Learn mac address
+        self.mac_to_port.setdefault(dpid, {})
+        self.mac_to_port[dpid][src] = in_port
 
         # Find out_port
         if dst in self.mac_to_port[dpid]:
@@ -70,21 +102,62 @@ class Controller(app_manager.RyuApp):
         else:
             out_port = ofproto.OFPP_FLOOD
 
-        actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+        actions = [parser.OFPActionOutput(out_port)]
+
+        # Install flow to avoid packet_in
+        if out_port != ofproto.OFPP_FLOOD:
+            match = parser.OFPMatch(in_port=in_port, dl_dst=dst)
+            # Verify if valid buffer_id to avoid send both flow_mod & packet_out
+            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                return
+            else:
+                self.add_flow(datapath, 1, match, actions)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
 
-        out = datapath.ofproto_parser.OFPPacketOut(
+        out = parser.OFPPacketOut(
             datapath=datapath,
             buffer_id=msg.buffer_id,
-            in_port=msg.in_port,
+            in_port=in_port,
             actions=actions,
             data=data,
         )
-
         datapath.send_msg(out)
+
+    def add_flow(
+        self, datapath: Datapath, priority: int, match, actions, buffer_id=None
+    ):
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        self.logger.info(
+            f"Add flow: {{ dpid: {datapath.id}, priority: {priority}, match: {match}, actions: {actions} }}"
+        )
+
+        if buffer_id:
+            mod = parser.OFPFlowMod(
+                datapath=datapath,
+                match=match,
+                command=ofproto.OFPFC_ADD,
+                priority=priority,
+                flags=ofproto.OFPFF_SEND_FLOW_REM,
+                actions=actions,
+                buffer_id=buffer_id,
+            )
+        else:
+            mod = parser.OFPFlowMod(
+                datapath=datapath,
+                match=match,
+                command=ofproto.OFPFC_ADD,
+                priority=priority,
+                flags=ofproto.OFPFF_SEND_FLOW_REM,
+                actions=actions,
+            )
+
+        datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):

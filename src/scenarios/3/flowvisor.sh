@@ -59,8 +59,8 @@ function next_idx_server() {
 # Migration mode
 while : ; do
     read -n1 -r -p "Select migration mode [1->UPDATE|2->DELETE]: " migration_mode
+    printf "\n"
     if [[ ! $migration_mode =~ ^[0-9]+$ ]] ; then
-        printf "\n"
         WARN "Mode '$migration_mode' is not a number"
         continue
     fi
@@ -70,13 +70,11 @@ while : ; do
             break
         ;;
         *)
-            printf "\n"
             WARN "Mode '$migration_mode' is unknown"
             continue
         ;;
     esac
 done
-printf "\n"
 
 # Start FlowVisor
 fvctl_start
@@ -149,7 +147,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     # New port
     NEW_PORT=${SERVERS_PORT[IDX_SERVER]}
 
-    printf "\n"
     INFO "Migrating from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 
     # Docker manager

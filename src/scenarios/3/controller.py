@@ -101,7 +101,7 @@ class Controller(app_manager.RyuApp):
         dpid = datapath.id
 
         self.logger.info(
-            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {msg.in_port} }}"
+            f"OFPPacketIn: {{ dpid: {dpid}, src: {src}, dst: {dst}, in_port: {in_port} }}"
         )
         if msg.msg_len < msg.total_len:
             self.logger.warn(
