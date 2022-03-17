@@ -39,7 +39,7 @@ class Controller(app_manager.RyuApp):
             self.thread_migration.start()
 
     def thread_migration_cb(self, port: int):
-        migrator.start(port, callback=self.migration_cb)
+        migrator.start(port, self.migration_cb)
 
     def migration_cb(self, dpid: int, in_port: int, out_port: int):
         datapath: Datapath = self.get_datapath(dpid)

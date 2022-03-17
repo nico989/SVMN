@@ -34,7 +34,10 @@ class Controller(app_manager.RyuApp):
             self.thread_migration.start()
 
     def thread_migration_cb(self, port: int):
-        migrator.start(port, mappings=self.mac_to_port)
+        migrator.start(port, self.migration_cb)
+
+    def migration_cb(self, dpid: int, mac: str, port: int):
+        self.mac_to_port[dpid][mac] = port
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
