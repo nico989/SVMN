@@ -26,7 +26,7 @@ class MorphingSlices(app_manager.RyuApp):
             ]
         )
 
-        self.mac_to_port = {}
+        self.in_to_out = {1: {1: 3, 2: 5, 3: 1, 4: 1, 5: 2, 6: 2}}
         self.datapaths = {}
 
         if CONF.port:
@@ -39,7 +39,7 @@ class MorphingSlices(app_manager.RyuApp):
             self.thread_migration.start()
 
     def thread_migration_cb(self, port: int):
-        migrator.start(port, mappings=self.mac_to_port)
+        migrator.start(port, mappings=self.in_to_out)
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _switch_features_handler(self, ev):
@@ -91,20 +91,22 @@ class MorphingSlices(app_manager.RyuApp):
                 f"OFPPacketIn packet truncated: {{ dpid: {dpid}, msg_len: {msg.msg_len}, total_len: {msg.total_len} }}"
             )
 
-        # Learn mac address to avoid FLOOD
-        self.mac_to_port.setdefault(dpid, {})
-        self.mac_to_port[dpid][src] = in_port
+        # Check path
+        if in_port not in self.in_to_out[dpid]:
+            self.logger.error(f"Unknown path for in_port {in_port}")
+            return
 
-        if dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][dst]
-        else:
-            out_port = ofproto.OFPP_FLOOD
+        # Obtain out_port
+        out_port = self.in_to_out[dpid][in_port]
+        # Ignore if out_port is handshake
+        if out_port == 0:
+            return
 
         actions = [parser.OFPActionOutput(out_port)]
 
         # Install flow to avoid packet_in
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, dl_dst=dst)
+            match = parser.OFPMatch(in_port=in_port)
             # Verify if valid buffer_id to avoid send both flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
@@ -162,12 +164,12 @@ class MorphingSlices(app_manager.RyuApp):
         parser = datapath.ofproto_parser
 
         self.logger.info(
-            f"Delete flow: {{ dpid: {datapath.id}, macs: {self.mac_to_port[datapath.id].keys()} }}"
+            f"Delete flow: {{ dpid: {datapath.id}, flows: {self.in_to_out[datapath.id]} }}"
         )
 
-        for dst in self.mac_to_port[datapath.id].keys():
-            self.logger.info(f" Deleting flow")
-            match = parser.OFPMatch(eth_dst=dst)
+        for in_port in self.in_to_out[datapath.id].keys():
+            self.logger.info(f" Deleting flow in_port={in_port}")
+            match = parser.OFPMatch(in_port=in_port)
             mod = parser.OFPFlowMod(
                 datapath,
                 command=ofproto.OFPFC_DELETE,
