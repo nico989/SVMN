@@ -11,6 +11,7 @@ import migrator
 import threading
 
 
+# FIXME Cambia con un controller decente pls
 class Controller(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 

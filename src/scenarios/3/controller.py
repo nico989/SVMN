@@ -13,6 +13,9 @@ from ryu import cfg
 import migrator
 import threading
 
+MIGRATION_MODE_UPDATE: int = 1
+MIGRATION_MODE_DELETE: int = 2
+
 
 class Controller(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
@@ -41,9 +44,18 @@ class Controller(app_manager.RyuApp):
     def thread_migration_cb(self, port: int):
         migrator.start(port, self.migration_cb)
 
-    def migration_cb(self, dpid: int, in_port: int, out_port: int):
+    def migration_cb(self, mode: int, dpid: int, in_port: int, out_port: int):
         datapath: Datapath = self.get_datapath(dpid)
-        self.delete_flow(datapath, in_port)
+
+        if mode == MIGRATION_MODE_UPDATE:
+            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+            self.update_flow(datapath, match, actions)
+        elif mode == MIGRATION_MODE_DELETE:
+            self.delete_flow(datapath, in_port)
+        else:
+            self.logger.warn(f"Unknown migration mode {mode}")
+
         self.in_to_out[dpid][in_port] = out_port
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -164,6 +176,23 @@ class Controller(app_manager.RyuApp):
 
         datapath.send_msg(mod)
 
+    def update_flow(self, datapath: Datapath, match, actions):
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        self.logger.info(
+            f"Update flow: {{ dpid: {datapath.id}, match: {match}, actions: {actions} }}"
+        )
+
+        mod = parser.OFPFlowMod(
+            datapath=datapath,
+            match=match,
+            command=ofproto.OFPFC_MODIFY,
+            actions=actions,
+        )
+
+        datapath.send_msg(mod)
+
     def delete_flow(self, datapath: Datapath, in_port: int):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
@@ -178,6 +207,7 @@ class Controller(app_manager.RyuApp):
             match=match,
             command=ofproto.OFPFC_DELETE,
         )
+
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)

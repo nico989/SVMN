@@ -3,6 +3,8 @@
 # Current directory
 __DIRNAME="$(dirname "$( readlink -m "${BASH_SOURCE[0]}" )" )"
 readonly __DIRNAME
+# Migration mode
+MIGRATION_MODE=
 # Servers
 readonly SLICE_1_SERVERS_IP=("10.0.0.100" "10.0.0.101")
 readonly SLICE_1_SERVERS_PORT=(3 4)
@@ -54,6 +56,28 @@ function next_idx_server() {
     esac
 }
 
+# Migration mode
+while : ; do
+    read -n1 -r -p "Select migration mode [1->UPDATE|2->DELETE]: " migration_mode
+    if [[ ! $migration_mode =~ ^[0-9]+$ ]] ; then
+        printf "\n"
+        WARN "Mode '$migration_mode' is not a number"
+        continue
+    fi
+    case $migration_mode in
+        1 | 2)
+            MIGRATION_MODE=$migration_mode
+            break
+        ;;
+        *)
+            printf "\n"
+            WARN "Mode '$migration_mode' is unknown"
+            continue
+        ;;
+    esac
+done
+printf "\n"
+
 # Start FlowVisor
 fvctl_start
 
@@ -81,8 +105,8 @@ fvctl_exec add-flowspace dpid1-slice2-s 1 1 in_port="${SLICE_2_SERVERS_PORT[SLIC
 while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
     while : ; do
         read -n1 -r -p "Select slice to migrate [1|2]: " slice
+        printf "\n"
         if [[ ! $slice =~ ^[0-9]+$ ]] ; then
-            printf "\n"
             WARN "Slice '$slice' is not a number"
             continue
         fi
@@ -108,7 +132,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 break
             ;;
             *)
-                printf "\n"
                 WARN "Slice '$slice' is unknown"
                 continue
             ;;
@@ -133,7 +156,7 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
 
     # Controller flow
-    curl -X POST -H \"Content-Type:application/json\" -d "{ \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
+    curl -X POST -H \"Content-Type:application/json\" -d "{ \"mode\": \"$MIGRATION_MODE\", \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
 
     # FlowVisor
     fvctl_exec remove-flowspace "$FLOW_NAME"

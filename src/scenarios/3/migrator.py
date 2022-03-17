@@ -14,6 +14,8 @@ def migrate():
 
     # Request body
     body = request.get_json(force=True)
+    # Mode
+    mode = int(body["mode"])
     # Switch dpid
     dpid = int(body["dpid"])
     # In port
@@ -23,7 +25,7 @@ def migrate():
 
     # Notify callback
     if cb:
-        cb(dpid, in_port, out_port)
+        cb(mode, dpid, in_port, out_port)
 
     return ("", 200)
 
