@@ -14,11 +14,11 @@ import migrator
 import threading
 
 
-class MorphingSlices(app_manager.RyuApp):
+class Controller(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
-        super(MorphingSlices, self).__init__(*args, **kwargs)
+        super(Controller, self).__init__(*args, **kwargs)
         CONF = cfg.CONF
         CONF.register_opts(
             [
@@ -39,7 +39,12 @@ class MorphingSlices(app_manager.RyuApp):
             self.thread_migration.start()
 
     def thread_migration_cb(self, port: int):
-        migrator.start(port, mappings=self.in_to_out)
+        migrator.start(port, callback=self.migration_cb)
+
+    def migration_cb(self, dpid: int, in_port: int, out_port: int):
+        datapath: Datapath = self.get_datapath(dpid)
+        self.delete_flow(datapath, in_port)
+        self.in_to_out[dpid][in_port] = out_port
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _switch_features_handler(self, ev):
@@ -159,26 +164,21 @@ class MorphingSlices(app_manager.RyuApp):
 
         datapath.send_msg(mod)
 
-    def delete_flow(self, datapath: Datapath):
+    def delete_flow(self, datapath: Datapath, in_port: int):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
         self.logger.info(
-            f"Delete flow: {{ dpid: {datapath.id}, flows: {self.in_to_out[datapath.id]} }}"
+            f"Delete flow: {{ dpid: {datapath.id}, in_port={in_port}, out_port: {self.in_to_out[datapath.id][in_port]} }}"
         )
 
-        for in_port in self.in_to_out[datapath.id].keys():
-            self.logger.info(f" Deleting flow in_port={in_port}")
-            match = parser.OFPMatch(in_port=in_port)
-            mod = parser.OFPFlowMod(
-                datapath,
-                command=ofproto.OFPFC_DELETE,
-                out_port=ofproto.OFPP_ANY,
-                out_group=ofproto.OFPG_ANY,
-                priority=1,
-                match=match,
-            )
-            datapath.send_msg(mod)
+        match = parser.OFPMatch(in_port=in_port)
+        mod = parser.OFPFlowMod(
+            datapath=datapath,
+            match=match,
+            command=ofproto.OFPFC_DELETE,
+        )
+        datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):

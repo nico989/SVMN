@@ -2,8 +2,8 @@ from flask import Flask, request
 
 # Flask app(s)
 app = Flask(__name__)
-# Mappings
-mac_to_port = None
+# Callback
+cb = None
 
 
 @app.route("/api/migrate", methods=["POST"])
@@ -16,19 +16,19 @@ def migrate():
     body = request.get_json(force=True)
     # Switch dpid
     dpid = int(body["dpid"])
-    # Server mac
-    mac = body["mac"]
-    # Server port
-    port = int(body["port"])
+    # In port
+    in_port = int(body["in_port"])
+    # Out port
+    out_port = int(body["out_port"])
 
-    # Redefine mappings
-    if mac_to_port and mac_to_port[dpid] and mac_to_port[dpid][mac]:
-        mac_to_port[dpid][mac] = port
+    # Notify callback
+    if cb:
+        cb(dpid, in_port, out_port)
 
     return ("", 200)
 
 
-def start(port: int, mappings: dict):
-    global mac_to_port
-    mac_to_port = mappings
+def start(port: int, callback):
+    global cb
+    cb = callback
     app.run(port=port)

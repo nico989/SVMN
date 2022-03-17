@@ -19,7 +19,7 @@ source "${__DIRNAME}/__commons.sh"
 # Print help message
 function print_help() {
 cat << EOF
-Usage: ryu.sh [--help] --controller CONTROLLER --ofport PORT --port PORT [--config PATH]
+Usage: ryu.sh [--help] --controller CONTROLLER --ofport PORT [--port PORT] [--config PATH]
 
 Ryu script.
 
@@ -72,8 +72,11 @@ done
 
 # Ryu Manager
 INFO "Running ryu: { controller: $ARG_CONTROLLER, ofport: $ARG_OFPORT, port: $ARG_PORT, config: $ARG_CONFIG }"
-ryu_cmd=(ryu-manager --observe-links --ofp-tcp-listen-port "${ARG_OFPORT}" --wsapi-port "${ARG_PORT}")
+ryu_cmd=(ryu-manager --observe-links --ofp-tcp-listen-port "${ARG_OFPORT}")
 if [ -n "$ARG_CONFIG" ] && [ "$ARG_CONFIG" != " " ]; then ryu_cmd+=(--config-file "$ARG_CONFIG"); fi
-ryu_cmd+=("$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")/app/gui_topology/gui_topology.py") \
+if [ -n "$ARG_PORT" ] && [ "$ARG_PORT" != " " ]; then
+    ryu_cmd+=(--wsapi-port "${ARG_PORT}")
+    ryu_cmd+=("$(dirname "$(python3 -c "import ryu; print(ryu.__file__)")")/app/gui_topology/gui_topology.py")
+fi
 ryu_cmd+=("${ARG_CONTROLLER}")
 "${ryu_cmd[@]}"

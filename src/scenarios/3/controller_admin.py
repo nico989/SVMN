@@ -1,6 +1,7 @@
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.topology import event
+from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER, DEAD_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 from ryu.lib.packet import packet
@@ -10,7 +11,7 @@ from ryu import cfg
 import migrator
 import threading
 
-
+# FIXME Cambialo con qualcosa di serio pls
 class Controller(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
@@ -100,3 +101,26 @@ class Controller(app_manager.RyuApp):
         self.logger.info(
             f"OFPPortStatus: {{ dpid: {datapath.id}, port: {msg.desc.port_no}, reason: {reason} }}"
         )
+
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def _switch_features_handler(self, ev):
+        msg = ev.msg
+
+        s = f"OFPSwitchFeatures: {{ dpid: {msg.datapath_id}, buffers: {msg.n_buffers}, tables: {msg.n_tables}, capabilities: {msg.capabilities}, ports: ["
+        for index, port in enumerate(msg.ports.values()):
+            s += f"{{ port: {port.port_no}, name: {port.name.decode('UTF-8')}, hw_addr: {port.hw_addr} }}"
+            if index != len(msg.ports) - 1:
+                s += ", "
+        s += f"] }}"
+
+        self.logger.info(s)
+
+    @set_ev_cls(event.EventSwitchEnter)
+    def _switch_enter_handler(self, ev):
+        self.logger.info(f"SwitchEnter: {{ dpid: {ev.switch.dp.id} }}")
+
+    @set_ev_cls(
+        event.EventSwitchLeave, [MAIN_DISPATCHER, CONFIG_DISPATCHER, DEAD_DISPATCHER]
+    )
+    def _switch_leave_handler(self, ev):
+        self.logger.info(f"SwitchLeave: {{ dpid: {ev.switch.dp.id} }}")

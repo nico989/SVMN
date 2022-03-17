@@ -8,7 +8,6 @@ readonly SLICE_1_SERVERS_IP=("10.0.0.100" "10.0.0.101")
 readonly SLICE_1_SERVERS_PORT=(3 4)
 readonly SLICE_2_SERVERS_IP=("10.0.0.102" "10.0.0.103")
 readonly SLICE_2_SERVERS_PORT=(5 6)
-readonly SERVER_MAC="00:00:00:00:c0:64"
 # Current server
 SLICE_1_IDX_SERVER=0
 SLICE_2_IDX_SERVER=0
@@ -59,24 +58,24 @@ function next_idx_server() {
 fvctl_start
 
 # FlowVisor admin slice & flow
-#INFO "Creating FlowVisor admin slice"
-#fvctl_exec add-slice --password=password slice_service_migration_admin tcp:localhost:10002 admin@slice_service_migration_admin
-#INFO "Creating FlowVisor admin flow"
-#fvctl_exec add-flowspace admin 2 1 any slice_service_migration_admin=7
+INFO "Creating FlowVisor admin slice"
+fvctl_exec add-slice --password=password admin tcp:localhost:10003 admin@slice_admin
+INFO "Creating FlowVisor admin flow"
+fvctl_exec add-flowspace dpid3-admin 3 1 any admin=7
 
 # FlowVisor data slice(s)
 INFO "Creating FlowVisor data slice 1"
-fvctl_exec add-slice --password=password data1 tcp:localhost:10001 admin@slicedata1
+fvctl_exec add-slice --password=password data_1 tcp:localhost:10001 admin@slice_data_1
 INFO "Creating FlowVisor data slice 2"
-fvctl_exec add-slice --password=password data2 tcp:localhost:10002 admin@slicedata2
+fvctl_exec add-slice --password=password data_2 tcp:localhost:10002 admin@slice_data_2
 
 # Flowvisor data flow(s)
 INFO "Creating FlowVisor data flow for slice 1"
-fvctl_exec add-flowspace dpid1-slice1-c 1 1 in_port=1 data1=7
-fvctl_exec add-flowspace dpid1-slice1-s 1 1 in_port="${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}" data1=7
+fvctl_exec add-flowspace dpid1-slice1-c 1 1 in_port=1 data_1=7
+fvctl_exec add-flowspace dpid1-slice1-s 1 1 in_port="${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}" data_1=7
 INFO "Creating FlowVisor data flow for slice 2"
-fvctl_exec add-flowspace dpid1-slice2-c 1 1 in_port=2 data2=7
-fvctl_exec add-flowspace dpid1-slice2-s 1 1 in_port="${SLICE_2_SERVERS_PORT[SLICE_2_IDX_SERVER]}" data2=7
+fvctl_exec add-flowspace dpid1-slice2-c 1 1 in_port=2 data_2=7
+fvctl_exec add-flowspace dpid1-slice2-s 1 1 in_port="${SLICE_2_SERVERS_PORT[SLICE_2_IDX_SERVER]}" data_2=7
 
 # Migration loop
 while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
@@ -89,21 +88,23 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
         fi
         case $slice in
             1)
-                SERVERS_IP=SLICE_1_SERVERS_IP
-                SERVERS_PORT=SLICE_1_SERVERS_PORT
-                IDX_SERVER=SLICE_1_IDX_SERVER
-                CONTROLLER_PORT="9876"
+                SERVERS_IP=( "${SLICE_1_SERVERS_IP[@]}" )
+                SERVERS_PORT=( "${SLICE_1_SERVERS_PORT[@]}" )
+                CLIENT_PORT=1
+                IDX_SERVER=$SLICE_1_IDX_SERVER
+                CONTROLLER_PORT=9876
                 FLOW_NAME="dpid1-slice1-s"
-                SLICE_NAME="slice_data_1"
+                SLICE_NAME="data_1"
                 break
             ;;
             2)
-                SERVERS_IP=SLICE_2_SERVERS_IP
-                SERVERS_PORT=SLICE_2_SERVERS_PORT
-                IDX_SERVER=SLICE_2_IDX_SERVER
-                CONTROLLER_PORT="9877"
+                SERVERS_IP=( "${SLICE_2_SERVERS_IP[@]}" )
+                SERVERS_PORT=( "${SLICE_2_SERVERS_PORT[@]}" )
+                CLIENT_PORT=2
+                IDX_SERVER=$SLICE_2_IDX_SERVER
+                CONTROLLER_PORT=9877
                 FLOW_NAME="dpid1-slice2-s"
-                SLICE_NAME="slice_data_2"
+                SLICE_NAME="data_2"
                 break
             ;;
             *)
@@ -119,26 +120,33 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     # Old port
     OLD_PORT=${SERVERS_PORT[IDX_SERVER]}
     # Update idx server
-    # TODO: CHECK
     IDX_SERVER="$(next_idx_server "$slice" "$IDX_SERVER")"
     # New ip
     NEW_IP=${SERVERS_IP[IDX_SERVER]}
     # New port
     NEW_PORT=${SERVERS_PORT[IDX_SERVER]}
 
+    printf "\n"
     INFO "Migrating from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 
     # Docker manager
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
 
     # Controller flow
-    curl -X POST -H \"Content-Type:application/json\" -d "{ \"dpid\": \"1\", \"mac\": \"$SERVER_MAC\", \"port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
+    curl -X POST -H \"Content-Type:application/json\" -d "{ \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
 
     # FlowVisor
     fvctl_exec remove-flowspace "$FLOW_NAME"
     fvctl_stop
     fvctl_start
     fvctl_exec add-flowspace "$FLOW_NAME" 1 1 in_port="$NEW_PORT" "$SLICE_NAME=7"
+
+    # Update correct slice_idx_server
+    case $slice in
+        1) SLICE_1_IDX_SERVER=$IDX_SERVER;;
+        2) SLICE_2_IDX_SERVER=$IDX_SERVER;;
+        *) FATAL "Slice '$slice' is unknown" && exit 1;;
+    esac
 
     INFO "Successfully migrated slice $slice ($SLICE_NAME) from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 done

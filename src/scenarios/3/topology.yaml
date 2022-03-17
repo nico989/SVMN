@@ -17,14 +17,14 @@ switches:
       - node: s1
       - node: s2
       - node: s3
-  #  - name: sw1
-  #    links:
-  #      - node: c2
-  #      - node: c3
-  #      - node: s4
-  #      - node: s5
-  #      - node: s6
-  #      - node: s7
+  - name: sw1
+    links:
+      - node: c2
+      - node: c3
+      - node: s4
+      - node: s5
+      - node: s6
+      - node: s7
   - name: sw2
     links:
       - node: m0
@@ -40,18 +40,18 @@ switches:
       - node: s3
         fromInterface: sw2-s3-admin
         toInterface: s3-sw2-admin
-#      - node: s4
-#        fromInterface: sw2-s4-admin
-#        toInterface: s4-sw2-admin
-#      - node: s5
-#        fromInterface: sw2-s5-admin
-#        toInterface: s5-sw2-admin
-#      - node: s6
-#        fromInterface: sw2-s6-admin
-#        toInterface: s6-sw2-admin
-#      - node: s7
-#        fromInterface: sw2-s7-admin
-#        toInterface: s7-sw2-admin
+      - node: s4
+        fromInterface: sw2-s4-admin
+        toInterface: s4-sw2-admin
+      - node: s5
+        fromInterface: sw2-s5-admin
+        toInterface: s5-sw2-admin
+      - node: s6
+        fromInterface: sw2-s6-admin
+        toInterface: s6-sw2-admin
+      - node: s7
+        fromInterface: sw2-s7-admin
+        toInterface: s7-sw2-admin
 
 hosts:
   - name: m0
@@ -60,10 +60,10 @@ hosts:
     ip: 192.168.0.10/24
   - name: c1
     ip: 192.168.0.10/24
-  #  - name: c2
-  #    ip: 192.168.0.12/24
-  #  - name: c3
-  #    ip: 192.168.0.13/24
+  - name: c2
+    ip: 192.168.0.10/24
+  - name: c3
+    ip: 192.168.0.10/24
   - name: s0
     ip: 192.168.0.100/24
     mac: 00:00:00:00:c0:64
@@ -108,47 +108,47 @@ hosts:
     interfaces:
       - name: s3-sw2-admin
         ip: 10.0.0.103/24
-#  - name: s4
-#    ip: 192.168.0.100/24
-#    mac: 00:00:00:00:c0:64
-#    containers:
-#      - name: server4
-#        image: dev_server:latest
-#        cmd: "--host 0.0.0.0 --port 80 --enable"
-#        wait: true
-#    interfaces:
-#      - name: s4-sw2-admin
-#        ip: 10.0.0.104/24
-#  - name: s5
-#    ip: 192.168.0.100/24
-#    mac: 00:00:00:00:c0:64
-#    containers:
-#      - name: server5
-#        image: dev_server:latest
-#        cmd: "--host 0.0.0.0 --port 80"
-#        wait: true
-#    interfaces:
-#      - name: s5-sw2-admin
-#        ip: 10.0.0.105/24
-#  - name: s6
-#    ip: 192.168.0.100/24
-#    mac: 00:00:00:00:c0:64
-#    containers:
-#      - name: server6
-#        image: dev_server:latest
-#        cmd: "--host 0.0.0.0 --port 80 --enable"
-#        wait: true
-#    interfaces:
-#      - name: s6-sw2-admin
-#        ip: 10.0.0.106/24
-#  - name: s7
-#    ip: 192.168.0.100/24
-#    mac: 00:00:00:00:c0:64
-#    containers:
-#      - name: server7
-#        image: dev_server:latest
-#        cmd: "--host 0.0.0.0 --port 80"
-#        wait: true
-#    interfaces:
-#      - name: s7-sw2-admin
-#        ip: 10.0.0.107/24
+  - name: s4
+    ip: 192.168.0.100/24
+    mac: 00:00:00:00:c0:64
+    containers:
+      - name: server4
+        image: dev_server:latest
+        cmd: "--host 0.0.0.0 --port 80 --enable"
+        wait: true
+    interfaces:
+      - name: s4-sw2-admin
+        ip: 10.0.0.104/24
+  - name: s5
+    ip: 192.168.0.100/24
+    mac: 00:00:00:00:c0:64
+    containers:
+      - name: server5
+        image: dev_server:latest
+        cmd: "--host 0.0.0.0 --port 80"
+        wait: true
+    interfaces:
+      - name: s5-sw2-admin
+        ip: 10.0.0.105/24
+  - name: s6
+    ip: 192.168.0.100/24
+    mac: 00:00:00:00:c0:64
+    containers:
+      - name: server6
+        image: dev_server:latest
+        cmd: "--host 0.0.0.0 --port 80 --enable"
+        wait: true
+    interfaces:
+      - name: s6-sw2-admin
+        ip: 10.0.0.106/24
+  - name: s7
+    ip: 192.168.0.100/24
+    mac: 00:00:00:00:c0:64
+    containers:
+      - name: server7
+        image: dev_server:latest
+        cmd: "--host 0.0.0.0 --port 80"
+        wait: true
+    interfaces:
+      - name: s7-sw2-admin
+        ip: 10.0.0.107/24
