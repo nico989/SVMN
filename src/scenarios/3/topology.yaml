@@ -5,7 +5,7 @@ network:
 controllers:
   - name: controller0
     ip: 127.0.0.1
-    port: 6633
+    port: 6653
     type: ControllerRemote
 
 switches:

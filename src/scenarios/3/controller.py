@@ -29,7 +29,10 @@ class Controller(app_manager.RyuApp):
             ]
         )
 
-        self.in_to_out = {1: {1: 3, 2: 5, 3: 1, 4: 1, 5: 2, 6: 2}}
+        self.in_to_out = {
+            1: {1: 3, 2: 5, 3: 1, 4: 1, 5: 2, 6: 2},
+            2: {1: 3, 2: 5, 3: 1, 4: 1, 5: 2, 6: 2},
+        }
         self.datapaths = {}
 
         if CONF.port:
