@@ -13,10 +13,12 @@ readonly SLICE_2_SERVERS_PORT=(5 6)
 # Current server
 SLICE_1_IDX_SERVER=0
 SLICE_2_IDX_SERVER=0
+# Controller port
+readonly CONTROLLER_PORT=9876
 
 # Include commons
 # shellcheck source=../../scripts/__commons.sh
-source "${__DIRNAME}/../scripts/__commons.sh"
+source "${__DIRNAME}/../../scripts/__commons.sh"
 
 # Assert(s)
 if [ ${#SLICE_1_SERVERS_IP[@]} -ne ${#SLICE_1_SERVERS_PORT[@]} ]; then
@@ -76,28 +78,37 @@ while : ; do
     esac
 done
 
-# Start FlowVisor
-fvctl_start
+# OpenFlow admin slice
+INFO "Create slice for admin"
+sudo ovs-vsctl set port sw1-eth1 qos=@admin -- \
+--id=@admin create QoS type=linux-htb \
+queues:777=@adm -- \
+--id=@adm create queue other-config:min-rate=1000000 other-config:max-rate=5000000
 
-# FlowVisor admin slice & flow
-INFO "Creating FlowVisor admin slice"
-fvctl_exec add-slice --password=password admin tcp:localhost:10003 admin@slice_admin
-INFO "Creating FlowVisor admin flow"
-fvctl_exec add-flowspace dpid3-admin 3 1 any admin=7
+# OpenFlow admin flow
+INFO "Creating OpenFlow admin flow"
+ofctl_exec add-flow sw1 actions=set_queue:777,normal
 
-# FlowVisor data slice(s)
-INFO "Creating FlowVisor data slice 1"
-fvctl_exec add-slice --password=password data_1 tcp:localhost:10001 admin@slice_data_1
-INFO "Creating FlowVisor data slice 2"
-fvctl_exec add-slice --password=password data_2 tcp:localhost:10002 admin@slice_data_2
+# Slices for data_1 and data_2
+INFO "Create slice for data_1 and data_2"
+sudo ovs-vsctl set port sw0-eth1 qos=@data -- \
+--id=@data create QoS type=linux-htb \
+queues:123=@data1 \
+queues:234=@data2 -- \
+--id=@data1 create queue other-config:min-rate=1000000 other-config:max-rate=5000000 -- \
+--id=@data2 create queue other-config:min-rate=1000000 other-config:max-rate=5000000
 
-# Flowvisor data flow(s)
-INFO "Creating FlowVisor data flow for slice 1"
-fvctl_exec add-flowspace dpid1-slice1-c 1 1 in_port=1 data_1=7
-fvctl_exec add-flowspace dpid1-slice1-s 1 1 in_port="${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}" data_1=7
-INFO "Creating FlowVisor data flow for slice 2"
-fvctl_exec add-flowspace dpid1-slice2-c 1 1 in_port=2 data_2=7
-fvctl_exec add-flowspace dpid1-slice2-s 1 1 in_port="${SLICE_2_SERVERS_PORT[SLICE_2_IDX_SERVER]}" data_2=7
+# OpenFlow data_1 flows
+INFO "Creating OpenFlow data_1 flows"
+ofctl_exec add-flow sw0 in_port=1,actions=set_queue:123,output:"${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}"
+ofctl_exec add-flow sw0 in_port=3,actions=set_queue:123,output:1
+ofctl_exec add-flow sw0 in_port=4,actions=set_queue:123,output:1
+
+# OpenFlow data_2 flows
+INFO "Creating OpenFlow data_2 flows"
+ofctl_exec add-flow sw0 in_port=2,actions=set_queue:234,output:"${SLICE_2_SERVERS_PORT[SLICE_2_IDX_SERVER]}"
+ofctl_exec add-flow sw0 in_port=5,actions=set_queue:234,output:2
+ofctl_exec add-flow sw0 in_port=6,actions=set_queue:234,output:2
 
 # Migration loop
 while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
@@ -114,8 +125,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 SERVERS_PORT=( "${SLICE_1_SERVERS_PORT[@]}" )
                 CLIENT_PORT=1
                 IDX_SERVER=$SLICE_1_IDX_SERVER
-                CONTROLLER_PORT=9876
-                FLOW_NAME="dpid1-slice1-s"
                 SLICE_NAME="data_1"
                 break
             ;;
@@ -124,8 +133,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 SERVERS_PORT=( "${SLICE_2_SERVERS_PORT[@]}" )
                 CLIENT_PORT=2
                 IDX_SERVER=$SLICE_2_IDX_SERVER
-                CONTROLLER_PORT=9877
-                FLOW_NAME="dpid1-slice2-s"
                 SLICE_NAME="data_2"
                 break
             ;;
@@ -150,15 +157,9 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     INFO "Migrating from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 
     # Docker manager
-    curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
-
+    docker exec -d m0 curl -X POST -H \"Content-Type:application/json\" -d "{ \"server\": \"http://$OLD_IP\" }" "$NEW_IP"/api/admin/migrate
     # Controller flow
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"mode\": \"$MIGRATION_MODE\", \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
-
-    # FlowVisor
-    fvctl_exec update-flowspace --match=in_port="$NEW_PORT" $FLOW_NAME
-    fvctl_stop
-    fvctl_start
 
     # Update correct slice_idx_server
     case $slice in
@@ -171,5 +172,7 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
 done
 
 # Exit
-fvctl_clean
+ofctl_exec del-flows sw0
+ofctl_exec del-flows sw1
+ofctl_exec del-flows sw2
 INFO "Bye! :)"

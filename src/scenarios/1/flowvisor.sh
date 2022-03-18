@@ -81,10 +81,9 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"dpid\": \"1\", \"mac\": \"$SERVER_MAC\", \"port\": \"$NEW_PORT\" }" localhost:9876/api/migrate
 
     # FlowVisor
-    fvctl_exec remove-flowspace dpid1-s
+    fvctl_exec update-flowspace --match=in_port="$NEW_PORT" dpid1-s
     fvctl_stop
     fvctl_start
-    fvctl_exec add-flowspace dpid1-s 1 1 in_port="$NEW_PORT" slice_service_migration=7
 
     INFO "Successfully migrated from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 done
