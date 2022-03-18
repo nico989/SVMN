@@ -76,15 +76,37 @@ while : ; do
     esac
 done
 
+# OpenFlow admin slice
+INFO "Create slice for admin"
+sudo ovs-vsctl set port sw1-eth1 qos=@admin -- \
+--id=@admin create QoS type=linux-htb \
+queues:777=@adm -- \
+--id=@adm create queue other-config:min-rate=1000000 other-config:max-rate=5000000
+
 # OpenFlow admin flow
 INFO "Creating OpenFlow admin flow"
-ofctl_exec add-flow sw1 actions=normal
+ofctl_exec add-flow sw1 actions=set_queue:777,normal
 
-# OpenFlow data flow
-INFO "Creating OpenFlow data flow"
-ofctl_exec add-flow sw0 in_port=1,actions=output:"${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}"
-ofctl_exec add-flow sw0 in_port=3,actions=output:1
-ofctl_exec add-flow sw0 in_port=4,actions=output:1
+# Slices for data_1 and data_2
+INFO "Create slice for data_1 and data_2"
+sudo ovs-vsctl set port sw0-eth1 qos=@data -- \
+--id=@data create QoS type=linux-htb \
+queues:123=@data1 \
+queues:234=@data2 -- \
+--id=@data1 create queue other-config:min-rate=1000000 other-config:max-rate=5000000 -- \
+--id=@data2 create queue other-config:min-rate=1000000 other-config:max-rate=5000000
+
+# OpenFlow data_1 flows
+INFO "Creating OpenFlow data_1 flows"
+ofctl_exec add-flow sw0 in_port=1,actions=set_queue:123,output:"${SLICE_1_SERVERS_PORT[SLICE_1_IDX_SERVER]}"
+ofctl_exec add-flow sw0 in_port=3,actions=set_queue:123,output:1
+ofctl_exec add-flow sw0 in_port=4,actions=set_queue:123,output:1
+
+# OpenFlow data_2 flows
+INFO "Creating OpenFlow data_2 flows"
+ofctl_exec add-flow sw0 in_port=2,actions=set_queue:234,output:"${SLICE_2_SERVERS_PORT[SLICE_2_IDX_SERVER]}"
+ofctl_exec add-flow sw0 in_port=5,actions=set_queue:234,output:2
+ofctl_exec add-flow sw0 in_port=6,actions=set_queue:234,output:2
 
 # Migration loop
 while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q ]]; do
@@ -110,7 +132,7 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 SERVERS_PORT=( "${SLICE_2_SERVERS_PORT[@]}" )
                 CLIENT_PORT=2
                 IDX_SERVER=$SLICE_2_IDX_SERVER
-                CONTROLLER_PORT=9877
+                CONTROLLER_PORT=9876
                 SLICE_NAME="data_2"
                 break
             ;;
@@ -135,8 +157,7 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     INFO "Migrating from { ip: $OLD_IP, port: $OLD_PORT } to { ip: $NEW_IP, port: $NEW_PORT }"
 
     # Docker manager
-    curl -X POST -H \"Content-Type:application/json\" -d "{ \"from\": \"$OLD_IP\", \"to\": \"$NEW_IP\" }" localhost:12345/api/migrate
-
+    docker exec -d m0 curl -X POST -H \"Content-Type:application/json\" -d "{ \"server\": \"http://$OLD_IP\" }" "$NEW_IP"/api/admin/migrate
     # Controller flow
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"mode\": \"$MIGRATION_MODE\", \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
 
