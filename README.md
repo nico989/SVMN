@@ -279,7 +279,12 @@ updating the correspondent flow.
 
 ![Scenario 3](assets/scenario_3.png)
 
-> TODO Aggiungere descrizione scenario 3
+In the scenario 3, the migration is handled by the remote controller which
+updates flows in any data side.
+After hitting enter, the user can decide in which slice the migration has
+to be performed. Then, the manager m0 migrates the active server to the new
+one and the controller redirects the client in the chosen slice to the new
+available server updating the correspondent flow.
 
 ### Terminal 1
 
