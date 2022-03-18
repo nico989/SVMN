@@ -3,10 +3,7 @@ from ryu.controller import ofp_event
 from ryu.topology import event
 from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER, DEAD_DISPATCHER
 from ryu.controller.handler import set_ev_cls
-from ryu.topology.api import get_switch
 from ryu.ofproto import ofproto_v1_0
-from ryu.controller.controller import Datapath
-from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
@@ -28,7 +25,6 @@ class Controller(app_manager.RyuApp):
         )
 
         self.mac_to_port = {}
-        self.datapaths = {}
 
         if CONF.port:
             migrator_port = int(CONF.port)
@@ -43,10 +39,6 @@ class Controller(app_manager.RyuApp):
         migrator.start(port, self.migration_cb)
 
     def migration_cb(self, dpid: int, mac: str, port: int):
-        datapath: Datapath = self.get_datapath(dpid)
-        match = datapath.ofproto_parser.OFPMatch(dl_dst=haddr_to_bin(mac))
-        actions = [datapath.ofproto_parser.OFPActionOutput(port)]
-        self.update_flow(datapath, match, actions)
         self.mac_to_port[dpid][mac] = port
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -111,16 +103,6 @@ class Controller(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
-        # Install flow to avoid packet_in
-        if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, dl_dst=dst)
-            # Verify if valid buffer_id to avoid send both flow_mod & packet_out
-            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                return
-            else:
-                self.add_flow(datapath, 1, match, actions)
-
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
@@ -132,56 +114,8 @@ class Controller(app_manager.RyuApp):
             actions=actions,
             data=data,
         )
+
         datapath.send_msg(out)
-
-    def add_flow(
-        self, datapath: Datapath, priority: int, match, actions, buffer_id=None
-    ):
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-
-        self.logger.info(
-            f"Add flow: {{ dpid: {datapath.id}, priority: {priority}, match: {match}, actions: {actions} }}"
-        )
-
-        if buffer_id:
-            mod = parser.OFPFlowMod(
-                datapath=datapath,
-                match=match,
-                command=ofproto.OFPFC_ADD,
-                priority=priority,
-                flags=ofproto.OFPFF_SEND_FLOW_REM,
-                actions=actions,
-                buffer_id=buffer_id,
-            )
-        else:
-            mod = parser.OFPFlowMod(
-                datapath=datapath,
-                match=match,
-                command=ofproto.OFPFC_ADD,
-                priority=priority,
-                flags=ofproto.OFPFF_SEND_FLOW_REM,
-                actions=actions,
-            )
-
-        datapath.send_msg(mod)
-
-    def update_flow(self, datapath: Datapath, match, actions):
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-
-        self.logger.info(
-            f"Update flow: {{ dpid: {datapath.id}, match: {match}, actions: {actions} }}"
-        )
-
-        mod = parser.OFPFlowMod(
-            datapath=datapath,
-            match=match,
-            command=ofproto.OFPFC_MODIFY,
-            actions=actions,
-        )
-
-        datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):
@@ -201,20 +135,3 @@ class Controller(app_manager.RyuApp):
         self.logger.info(
             f"OFPPortStatus: {{ dpid: {datapath.id}, port: {msg.desc.port_no}, reason: {reason} }}"
         )
-
-    def get_datapath(self, dpid: int) -> Datapath:
-        """Return the datapath of the given dpid
-
-        :param dpid: Switch dpid
-        :type dpid: int
-        :returns: Datapath corresponding to given dpid
-        :rtype: ryu.controller.controller.Datapath
-        """
-
-        if dpid not in self.datapaths:
-            switches = get_switch(self, dpid)
-            assert switches
-            assert len(switches) == 1
-            self.datapaths[dpid] = switches[0].dp
-
-        return self.datapaths[dpid]
