@@ -19,7 +19,7 @@ source "${__DIRNAME}/__commons.sh"
 # Print help message
 function print_help() {
 cat << EOF
-Usage: ryu.sh [--help] --controller CONTROLLER --ofport PORT [--port PORT] [--config PATH]
+Usage: ryu.sh [--help] --controller CONTROLLER [--ofport PORT] [--port PORT] [--config PATH]
 
 Ryu script.
 
@@ -72,7 +72,8 @@ done
 
 # Ryu Manager
 INFO "Running ryu: { controller: $ARG_CONTROLLER, ofport: $ARG_OFPORT, port: $ARG_PORT, config: $ARG_CONFIG }"
-ryu_cmd=(ryu-manager --observe-links --ofp-tcp-listen-port "${ARG_OFPORT}")
+ryu_cmd=(ryu-manager --observe-links)
+if [ -n "$ARG_OFPORT" ] && [ "$ARG_OFPORT" != " " ]; then ryu_cmd+=(--ofp-tcp-listen-port "${ARG_OFPORT}"); fi
 if [ -n "$ARG_CONFIG" ] && [ "$ARG_CONFIG" != " " ]; then ryu_cmd+=(--config-file "$ARG_CONFIG"); fi
 if [ -n "$ARG_PORT" ] && [ "$ARG_PORT" != " " ]; then
     ryu_cmd+=(--wsapi-port "${ARG_PORT}")

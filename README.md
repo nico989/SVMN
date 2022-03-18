@@ -289,7 +289,7 @@ updating the correspondent flow.
    sudo python3 topology.py --file scenarios/3/topology.yaml
    ```
 
-1. Wait `Terminal 2.3`
+1. Wait `Terminal 2.2`
 
 1. Wait `Terminal 3.1`
 
@@ -305,18 +305,20 @@ updating the correspondent flow.
    c1 curl -X POST 192.168.0.100/api/counter
    ```
 
-### Terminal 2
-
-1. Start FlowVisor container:
-
    ```bash
-   scripts/flowvisor.sh --volume scenarios/3
+   c2 curl -X POST 192.168.0.100/api/counter
    ```
 
-1. Run FlowVisor:
+   ```bash
+   c3 curl -X POST 192.168.0.100/api/counter
+   ```
+
+### Terminal 2
+
+1. Run OpenFlow:
 
    ```bash
-   ./flowvisor.sh
+   scenarios/3/openflow.sh
    ```
 
 1. Select migration mode:
@@ -342,20 +344,26 @@ updating the correspondent flow.
    1. Select slice to migrate:
 
       ```bash
-      Select slice to migrate [1|2]:
+      Select slice to migrate [1|2|3|4]:
       ```
 
       `1`: Data slice 1
 
       `2`: Data slice 2
 
+      `3`: Data slice 3
+
+      `4`: Data slice 4
+
 ### Terminal 3
 
 1. Start Ryu controller(s):
 
    ```bash
-   parallel -j 3 --ungroup ::: 'scripts/ryu.sh --controller scenarios/3/controller.py --ofport 10001 --config scenarios/3/controller_slice_1.cfg' 'scripts/ryu.sh --controller scenarios/3/controller.py --ofport 10002 --config scenarios/3/controller_slice_2.cfg' 'scripts/ryu.sh --controller scenarios/3/controller_admin.py --ofport 10003'
+   scripts/ryu.sh --controller scenarios/3/controller.py --port 8082 --config scenarios/3/controller.cfg
    ```
+
+1. Open browser at <http://localhost:8082>
 
 ## License
 
