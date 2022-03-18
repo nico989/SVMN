@@ -156,10 +156,9 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
     curl -X POST -H \"Content-Type:application/json\" -d "{ \"mode\": \"$MIGRATION_MODE\", \"dpid\": \"1\", \"in_port\": \"$CLIENT_PORT\", \"out_port\": \"$NEW_PORT\" }" "localhost:$CONTROLLER_PORT/api/migrate"
 
     # FlowVisor
-    fvctl_exec remove-flowspace "$FLOW_NAME"
+    fvctl_exec update-flowspace --match=in_port="$NEW_PORT" $FLOW_NAME
     fvctl_stop
     fvctl_start
-    fvctl_exec add-flowspace "$FLOW_NAME" 1 1 in_port="$NEW_PORT" "$SLICE_NAME=7"
 
     # Update correct slice_idx_server
     case $slice in
