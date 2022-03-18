@@ -13,6 +13,8 @@ readonly SLICE_2_SERVERS_PORT=(5 6)
 # Current server
 SLICE_1_IDX_SERVER=0
 SLICE_2_IDX_SERVER=0
+# Controller port
+readonly CONTROLLER_PORT=9876
 
 # Include commons
 # shellcheck source=../../scripts/__commons.sh
@@ -123,7 +125,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 SERVERS_PORT=( "${SLICE_1_SERVERS_PORT[@]}" )
                 CLIENT_PORT=1
                 IDX_SERVER=$SLICE_1_IDX_SERVER
-                CONTROLLER_PORT=9876
                 SLICE_NAME="data_1"
                 break
             ;;
@@ -132,7 +133,6 @@ while read -n1 -r -p "Press 'Enter' to migrate or 'q' to exit" && [[ $REPLY != q
                 SERVERS_PORT=( "${SLICE_2_SERVERS_PORT[@]}" )
                 CLIENT_PORT=2
                 IDX_SERVER=$SLICE_2_IDX_SERVER
-                CONTROLLER_PORT=9876
                 SLICE_NAME="data_2"
                 break
             ;;
