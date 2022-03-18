@@ -183,7 +183,7 @@ redirects the client c0 to the new available server creating a new flow.
    sudo python3 topology.py --file scenarios/1/topology.yaml
    ```
 
-1. Wait `Terminal 2.2`.
+1. Wait `Terminal 2.2`
 
 1. Wait `Terminal 3.1`
 
@@ -209,7 +209,7 @@ redirects the client c0 to the new available server creating a new flow.
    ./flowvisor.sh
    ```
 
-1. Wait `Terminal 3.1`.
+1. Wait `Terminal 3.1`
 
 1. Migrate:
 
@@ -224,7 +224,7 @@ redirects the client c0 to the new available server creating a new flow.
 1. Start Ryu controller(s):
 
    ```bash
-   parallel --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
+   parallel -j 2 --ungroup ::: 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10001 --port 8082 --config scenarios/1/controller.cfg' 'scripts/ryu.sh --controller scenarios/1/controller.py --ofport 10002 --port 8083'
    ```
 
 1. Open browser at <http://localhost:8082>
@@ -249,7 +249,7 @@ updating the correspondent flow.
    sudo python3 topology.py --file scenarios/2/topology.yaml
    ```
 
-1. Wait `Terminal 2.1`.
+1. Wait `Terminal 2.1`
 
 1. Increment the counter:
 
@@ -273,6 +273,88 @@ updating the correspondent flow.
 
    ```bash
    Press 'Enter' to migrate or 'q' to exit
+   ```
+
+## Scenario 3
+
+![Scenario 3](assets/scenario_3.png)
+
+> TODO Aggiungere descrizione scenario 3
+
+### Terminal 1
+
+1. Create network topology:
+
+   ```bash
+   sudo python3 topology.py --file scenarios/3/topology.yaml
+   ```
+
+1. Wait `Terminal 2.3`
+
+1. Wait `Terminal 3.1`
+
+1. Increment the counter:
+
+   > Make as many requests as you want
+
+   ```bash
+   c0 curl -X POST 192.168.0.100/api/counter
+   ```
+
+   ```bash
+   c1 curl -X POST 192.168.0.100/api/counter
+   ```
+
+### Terminal 2
+
+1. Start FlowVisor container:
+
+   ```bash
+   scripts/flowvisor.sh --volume scenarios/3
+   ```
+
+1. Run FlowVisor:
+
+   ```bash
+   ./flowvisor.sh
+   ```
+
+1. Select migration mode:
+
+   ```bash
+   Select migration mode [1->UPDATE|2->DELETE]:
+   ```
+
+   `1` (update): Migration via _OFPFC\_MODIFY_
+
+   `2` (delete): Migration via _OFPFC\_DELETE_
+
+1. Wait `Terminal 3.1`
+
+1. Migrate:
+
+   > Make as many migrations as you want
+
+   ```bash
+   Press 'Enter' to migrate or 'q' to exit
+   ```
+
+   1. Select slice to migrate:
+
+      ```bash
+      Select slice to migrate [1|2]:
+      ```
+
+      `1`: Data slice 1
+
+      `2`: Data slice 2
+
+### Terminal 3
+
+1. Start Ryu controller(s):
+
+   ```bash
+   parallel -j 3 --ungroup ::: 'scripts/ryu.sh --controller scenarios/3/controller.py --ofport 10001 --config scenarios/3/controller_slice_1.cfg' 'scripts/ryu.sh --controller scenarios/3/controller.py --ofport 10002 --config scenarios/3/controller_slice_2.cfg' 'scripts/ryu.sh --controller scenarios/3/controller_admin.py --ofport 10003'
    ```
 
 ## License
