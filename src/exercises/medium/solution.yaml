@@ -1,0 +1,48 @@
+network:
+  autoMac: false
+  autoArp: false
+
+controllers:
+  - name: controller0
+    type: ControllerLocal
+
+switches:
+  - name: sw0
+    links:
+      - node: c0
+        bandwidth: 1000
+        delay: 3ms
+      - node: s0
+        bandwidth: 2000
+        delay: 1ms
+      - node: s1
+        bandwidth: 2000
+        delay: 1ms
+  - name: sw1
+    links:
+      - node: c1
+        bandwidth: 1000
+        delay: 3ms
+      - node: s1
+        bandwidth: 2000
+        delay: 1ms
+        fromInterface: sw1-s1
+        toInterface: s1-sw1
+
+hosts:
+  - name: c0
+    ip: 192.168.0.10/24
+    mac: 00:00:00:00:00:0a
+  - name: s0
+    ip: 192.168.0.11/24
+    mac: 00:00:00:00:00:0b
+  - name: c1
+    ip: 10.64.28.10/24
+    mac: 00:00:00:00:1c:0a
+  - name: s1
+    ip: 192.168.0.12/24
+    mac: 00:00:00:00:00:0c
+    interfaces:
+      - name: s1-sw1
+        ip: 10.64.28.11/24
+        mac: 00:00:00:00:1c:0b

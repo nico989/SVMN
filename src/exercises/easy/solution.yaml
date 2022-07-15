@@ -1,0 +1,19 @@
+network:
+  autoMac: true
+  autoArp: true
+
+controllers:
+  - name: controller0
+    type: ControllerLocal
+
+switches:
+  - name: sw0
+    links:
+      - node: c0
+      - node: s0
+
+hosts:
+  - name: c0
+    ip: 192.168.0.10/24
+  - name: s0
+    ip: 192.168.0.11/24
