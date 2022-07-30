@@ -1,0 +1,36 @@
+network:
+  autoMac: true
+  autoArp: false
+
+controllers:
+  - name: controller0
+    type: ControllerLocal
+
+switches:
+  - name: sw0
+    links:
+      - node: r0
+      - node: c0
+      - node: c1
+  - name: sw1
+    links:
+      - node: r0
+        fromInterface: sw1-r0
+        toInterface: r0-sw1
+      - node: c2
+      - node: c3
+
+hosts:
+  - name: r0
+    ip: 192.168.0.254/24
+    interfaces:
+      - name: r0-sw1
+        ip: 10.64.28.254/24
+  - name: c0
+    ip: 192.168.0.10/24
+  - name: c1
+    ip: 192.168.0.11/24
+  - name: c2
+    ip: 10.64.28.10/24
+  - name: c3
+    ip: 10.64.28.11/24
