@@ -13,7 +13,7 @@ ryu = "~=4.34"
 [dev-packages]
 black = "~=22.6.0"
 pre-commit = "~=2.19.0"
-flask = "~=2.1.2"
+flask = "~=2.2.2"
 
 [requires]
 python_version = "3.8"
