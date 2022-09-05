@@ -11,7 +11,7 @@ loguru = "~=0.6.0"
 ryu = "~=4.34"
 
 [dev-packages]
-black = "~=22.6.0"
+black = "~=22.8.0"
 pre-commit = "~=2.19.0"
 flask = "~=2.1.2"
 
