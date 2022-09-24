@@ -1,6 +1,7 @@
 # Generated files|folders
 src/requirements.txt
 morphing_slices.tar.gz
+documentation/.vagrant
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

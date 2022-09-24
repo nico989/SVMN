@@ -1,0 +1,63 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+###############
+#  Variables  #
+###############
+
+CPUS = 2
+# - Wrapper machine should have at least 8192 since comnetsemu needs 4096.
+RAM = 8192
+
+BOX = "chenhan/ubuntu-desktop-20.04"
+VM_NAME = "ubuntu-20.04-WRAPPER"
+
+######################
+#  Provision Script  #
+######################
+
+$setup = <<-SCRIPT
+DEBIAN_FRONTEND=noninteractive apt update
+DEBIAN_FRONTEND=noninteractive apt install -y virtualbox virtualbox-ext-pack
+cd /home/vagrant
+wget https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_x86_64.deb
+DEBIAN_FRONTEND=noninteractive apt install -y ./vagrant_2.2.19_x86_64.deb
+git clone --recursive https://github.com/nico989/SVMN.git
+SCRIPT
+
+####################
+#  Vagrant Config  #
+####################
+
+Vagrant.configure("2") do |config|
+
+    config.vm.define "comnetsemuWrapper" do |comnetsemuWrapper|
+        comnetsemuWrapper.vm.box = BOX
+
+        comnetsemuWrapper.vm.provider "virtualbox" do |vb|
+            vb.name = VM_NAME
+            vb.cpus = CPUS
+            vb.memory = RAM
+            # - Set 64 MB for video memory
+            vb.customize ["modifyvm", :id, "--vram", "64"]
+            # - Set Graphic Card to VMSVGA
+            vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+            # - Enable nested virtualization
+            vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+
+        end
+
+        comnetsemuWrapper.vm.hostname = "ubuntu-20.04-WRAPPER"
+        comnetsemuWrapper.vm.box_check_update = true
+        comnetsemuWrapper.vm.post_up_message = '
+        This is a simple Ubuntu WRAPPER for Comnetsemu.
+        Credentials are vagrant:vagrant.
+        At the end, the user can run the Comnetsemu Vagrant file at the path /home/vagrant/SVMN/comnetsemu
+        '
+
+        # - Installation script
+        comnetsemuWrapper.vm.provision :shell, inline: $setup, privileged: true
+
+    end
+
+end
