@@ -28,7 +28,7 @@ INFO "Copying sources from $SRC_DIR to $TMP_DIR"
 cp -a "$SRC_DIR/." "$TMP_DIR/"
 # Generate requirements.txt
 INFO "Generating 'requirements.txt' from 'pipenv'"
-pipenv lock -r > "$TMP_DIR/requirements.txt"
+pipenv requirements > "$TMP_DIR/requirements.txt"
 # README & assets
 INFO "Copying README and assets"
 cp README.md "$TMP_DIR/"
